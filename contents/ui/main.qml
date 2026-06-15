@@ -108,6 +108,12 @@ PlasmoidItem {
             text: "Refresh now"
             icon.name: "view-refresh"
             onTriggered: root.loadAllData()
+        },
+        PlasmaCore.Action {
+            text: "Support FootballTray…"
+            icon.name: "emblem-favorite"
+            onTriggered: llmCtl.run(llmHelper + " open-url "
+                                    + JSON.stringify("https://ko-fi.com/gaimsdev"))
         }
     ]
 

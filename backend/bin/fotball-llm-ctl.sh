@@ -37,6 +37,31 @@ provider_keyurl() {
 
 cloud_active() { [ -f "$CLOUD_CONF" ]; }
 
+# Open a URL in the user's browser, robustly. On KDE, xdg-open delegates to
+# kde-open/kioclient which can fail silently, so we launch the real browser
+# binary directly (default browser via .desktop Exec → known binary → opener).
+browser_open() {
+    local URL="$1" DESK EXECLINE dir o b
+    DESK=$(xdg-settings get default-web-browser 2>/dev/null || true)
+    if [ -n "$DESK" ]; then
+        for dir in "$HOME/.local/share/applications" /usr/local/share/applications /usr/share/applications; do
+            [ -f "$dir/$DESK" ] || continue
+            EXECLINE=$(grep -m1 '^Exec=' "$dir/$DESK" | sed 's/^Exec=//; s/ *%[uUfFick]//g')
+            [ -n "$EXECLINE" ] && { setsid sh -c "$EXECLINE \"$URL\"" >/dev/null 2>&1 & return 0; }
+        done
+    fi
+    for b in firefox chromium chromium-browser google-chrome brave-browser microsoft-edge; do
+        command -v "$b" >/dev/null 2>&1 && { setsid "$b" "$URL" >/dev/null 2>&1 & return 0; }
+    done
+    for o in xdg-open gio kde-open6; do
+        command -v "$o" >/dev/null 2>&1 || continue
+        if [ "$o" = gio ]; then setsid gio open "$URL" >/dev/null 2>&1 &
+        else setsid "$o" "$URL" >/dev/null 2>&1 & fi
+        return 0
+    done
+    return 1
+}
+
 # Commentator style/language profiles (the "plugin" system).
 PROFILES_DIR="$HOME/.local/share/fotballtray/commentators"
 PROFILE_FILE="$HOME/.cache/fotballtray/commentator-profile"
@@ -113,37 +138,14 @@ PY
         ;;
     open-key)
         # Open the provider's free-key signup page in the user's browser.
-        # NOTE: on KDE, xdg-open delegates to kde-open/kioclient which can fail
-        # silently, and Qt.openUrlExternally is unreliable in the config dialog —
-        # so we launch the real browser binary directly.
         URL=$(provider_keyurl "${2:-openrouter}")
-        opened=0
-
-        # 1) The user's DEFAULT browser, via its .desktop Exec line (portable).
-        DESK=$(xdg-settings get default-web-browser 2>/dev/null || true)
-        if [ -n "$DESK" ]; then
-            for dir in "$HOME/.local/share/applications" /usr/local/share/applications /usr/share/applications; do
-                [ -f "$dir/$DESK" ] || continue
-                EXECLINE=$(grep -m1 '^Exec=' "$dir/$DESK" | sed 's/^Exec=//; s/ *%[uUfFick]//g')
-                [ -n "$EXECLINE" ] && { setsid sh -c "$EXECLINE \"$URL\"" >/dev/null 2>&1 & opened=1; break; }
-            done
-        fi
-        # 2) A known browser binary directly.
-        if [ "$opened" = 0 ]; then
-            for b in firefox chromium chromium-browser google-chrome brave-browser microsoft-edge; do
-                command -v "$b" >/dev/null 2>&1 && { setsid "$b" "$URL" >/dev/null 2>&1 & opened=1; break; }
-            done
-        fi
-        # 3) Last resort: generic openers.
-        if [ "$opened" = 0 ]; then
-            for o in xdg-open gio kde-open6; do
-                command -v "$o" >/dev/null 2>&1 || continue
-                if [ "$o" = gio ]; then setsid gio open "$URL" >/dev/null 2>&1 &
-                else setsid "$o" "$URL" >/dev/null 2>&1 & fi
-                opened=1; break
-            done
-        fi
-        [ "$opened" = 1 ] && echo "$URL" || { echo "FAILED: no way to open a browser."; exit 1; }
+        browser_open "$URL" && echo "$URL" || { echo "FAILED: no way to open a browser."; exit 1; }
+        ;;
+    open-url)
+        # Open an arbitrary URL (used by the tray "Support FootballTray" link).
+        URL="${2:?url required}"
+        case "$URL" in http://*|https://*) ;; *) echo "FAILED: refusing non-http URL."; exit 1 ;; esac
+        browser_open "$URL" && echo "$URL" || { echo "FAILED: no way to open a browser."; exit 1; }
         ;;
     test-cloud)
         # test-cloud <provider|baseurl> <apikey> [model]
