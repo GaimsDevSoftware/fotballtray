@@ -78,6 +78,61 @@ PROFILES_DIR="$HOME/.local/share/fotballtray/commentators"
 PROFILE_FILE="$HOME/.cache/fotballtray/commentator-profile"
 active_style() { cat "$PROFILE_FILE" 2>/dev/null || echo british; }
 
+# Generic completion via the ACTIVE backend (cloud or Ollama). $1=system $2=user.
+# Echoes the model's text. JSON payloads are built in Python (robust quoting).
+llm_complete() {
+    local SYS="$1" USR="$2" BASE KEY MODEL M
+    if cloud_active; then
+        BASE=$(grep -oP 'LLM_API_BASE=\K\S+' "$CLOUD_CONF" 2>/dev/null)
+        KEY=$(grep -oP 'LLM_API_KEY=\K\S+'  "$CLOUD_CONF" 2>/dev/null)
+        MODEL=$(grep -oP 'LLM_MODEL=\K\S+'  "$CLOUD_CONF" 2>/dev/null)
+        # Build an ordered list of candidate models (configured one first, then a
+        # preference list of capable instruct models), so a rate-limited free model
+        # falls through to the next one.
+        local CANDS
+        CANDS=$(curl -s --max-time 12 "$BASE/models" -H "Authorization: Bearer $KEY" \
+            | CFG="$MODEL" python3 -c 'import sys,json,os
+try:
+    ids=[m.get("id","") for m in json.load(sys.stdin).get("data",[])]
+except Exception: ids=[]
+free=[i for i in ids if i.endswith(":free")] or ids
+pref=("llama-3.3-70b","llama-3.1-70b","deepseek-chat","deepseek-v3","qwen-2.5-72b","qwen3","mistral","gemini-2","gemma")
+out=[]
+cfg=os.environ.get("CFG","")
+if cfg and cfg!="auto": out.append(cfg)
+for p in pref:
+    c=next((i for i in free if p in i.lower() and i not in out), "")
+    if c: out.append(c)
+for i in free:
+    if i not in out: out.append(i)
+print("\n".join(out[:5]))')
+        [ -z "$CANDS" ] && return 1
+        local m txt
+        while IFS= read -r m; do
+            [ -z "$m" ] && continue
+            txt=$(curl -s --max-time 90 "$BASE/chat/completions" \
+                -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
+                -d "$(M="$m" S="$SYS" U="$USR" python3 -c 'import json,os; print(json.dumps({"model":os.environ["M"],"max_tokens":2000,"temperature":0.7,"messages":[{"role":"system","content":os.environ["S"]},{"role":"user","content":os.environ["U"]}]}))')" \
+                | python3 -c 'import sys,json
+try:
+    d=json.load(sys.stdin)
+    if "error" in d: print("");
+    else:
+        c=d.get("choices") or []; print(c[0]["message"].get("content","") if c else "")
+except Exception: print("")')
+            if [ -n "$txt" ]; then printf '%s' "$txt"; return 0; fi
+        done <<< "$CANDS"
+        return 1
+    else
+        M=$(current_model); ensure_serving || return 1
+        curl -s --max-time 120 "$OLLAMA_URL/api/generate" \
+            -d "$(M="$M" S="$SYS" U="$USR" python3 -c 'import json,os; print(json.dumps({"model":os.environ["M"],"system":os.environ["S"],"prompt":os.environ["U"],"stream":False,"think":False,"options":{"temperature":0.7,"num_predict":2000}}))')" \
+            | python3 -c 'import sys,json
+try: print(json.load(sys.stdin).get("response",""))
+except Exception: print("")'
+    fi
+}
+
 have_ollama()    { command -v ollama >/dev/null 2>&1; }
 ollama_running() { curl -s --max-time 3 "$OLLAMA_URL/api/tags" >/dev/null 2>&1; }
 
@@ -136,6 +191,58 @@ for f in sorted(glob.glob(os.path.join(d, "*.json"))):
     except Exception:
         pass
 print(json.dumps(out))
+PY
+        ;;
+    make-style)
+        # Wizard: turn a plain-text description into a full commentator profile.
+        # The model writes the creative parts; we guarantee a valid voice/lang +
+        # a good shout-on-goals prosody, so the result is always functional.
+        DESC="${2:?description required}"
+        SYS="You design commentator profiles for a football text-to-speech app. Output ONLY one JSON object — no prose, no code fence."
+        USR="Create a football commentator profile from this description: \"$DESC\".
+Return JSON with EXACTLY these keys:
+  name: a short style name (max 40 chars)
+  language: EXACTLY one of [British English, American English, Spanish, Brazilian Portuguese, Italian, French, Hindi, Japanese, Chinese]
+  accent: a hex colour (like #E63946) that suits the style
+  systemPrompt: a vivid system prompt for the commentator persona. It MUST make the model reply IN that language, present-tense and live, ERUPT on a goal, be dramatic on a red card, and end with hard rules: reply with ONLY the commentary line (no labels or quotes), 1-2 sentences, max ~35 words, normal spelling.
+Output ONLY the JSON object."
+        OUT=$(llm_complete "$SYS" "$USR") || { echo "FAILED: the model did not respond."; exit 1; }
+        [ -z "$OUT" ] && { echo "FAILED: empty model output (all free models busy — try again in a minute)."; exit 1; }
+        OUT="$OUT" python3 - <<'PY'
+import sys, json, re, os, unicodedata
+raw = os.environ.get("OUT", "")
+raw = re.sub(r'<think>.*?</think>', '', raw, flags=re.S|re.I)   # drop reasoning
+raw = re.sub(r'```(?:json)?|```', '', raw)                       # drop code fences
+m = re.search(r'\{.*\}', raw, re.S)
+if not m: print("FAILED: no JSON in the model output."); sys.exit(1)
+try: d = json.loads(m.group(0))
+except Exception as e: print("FAILED: invalid JSON from model."); sys.exit(1)
+VMAP = {"British English":("bm_george","en-gb"),"American English":("am_michael","en-us"),
+        "Spanish":("em_alex","es"),"Brazilian Portuguese":("pm_alex","pt-br"),
+        "Italian":("im_nicola","it"),"French":("ff_siwis","fr-fr"),
+        "Hindi":("hm_omega","hi"),"Japanese":("jm_kumo","ja"),"Chinese":("zm_yunjian","cmn")}
+lang = d.get("language","British English")
+voice, tts = VMAP.get(lang, VMAP["British English"])
+name = (str(d.get("name") or "Custom style")).strip()[:40]
+sp = (d.get("systemPrompt") or "").strip()
+if not sp: print("FAILED: the model returned an empty persona."); sys.exit(1)
+accent = (d.get("accent") or "#2E9BF0").strip()
+if not re.match(r'^#?[0-9A-Fa-f]{6}$', accent): accent = "#2E9BF0"
+if not accent.startswith("#"): accent = "#"+accent
+slug = unicodedata.normalize("NFKD", name).encode("ascii","ignore").decode().lower()
+slug = re.sub(r'[^a-z0-9]+','-',slug).strip('-') or "custom"
+# don't clobber a built-in
+if slug in ("british","american","spanish","brazilian","italian"): slug = slug+"-custom"
+prof = {"id":slug,"name":name,"language":lang,"voice":voice,"ttsLang":tts,"accent":accent,
+        "systemPrompt":sp,
+        "prosody":{"goal":{"speed":1.09,"pitch":1.16,"gain":8,"shout":True},
+                   "owngoal":{"speed":1.0,"pitch":1.08,"gain":4,"shout":True},
+                   "redcard":{"speed":1.0,"pitch":1.06,"gain":4,"shout":True},
+                   "general":{"speed":0.98,"pitch":1.0,"gain":0,"shout":False}}}
+dd = os.path.expanduser("~/.local/share/fotballtray/commentators")
+os.makedirs(dd, exist_ok=True)
+open(os.path.join(dd, slug+".json"),"w").write(json.dumps(prof, ensure_ascii=False, indent=2))
+print("DONE: created style '%s' (%s) — id %s." % (name, lang, slug))
 PY
         ;;
     set-style)

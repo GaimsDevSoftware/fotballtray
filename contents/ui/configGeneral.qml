@@ -118,6 +118,18 @@ KCM.SimpleKCM {
         llmAction("set-style " + id, "Switching commentator style…");
     }
 
+    // AI wizard: turn a plain-text description into a full commentator profile.
+    function createStyle(desc) {
+        if (!desc || desc.trim().length < 4) { llmOutput = "Describe the commentator first."; return; }
+        llmBusy = "Creating your style with AI…"; llmOutput = "";
+        llmExec.exec(llmHelper + " make-style " + JSON.stringify(desc), function(out) {
+            llmBusy = ""; llmOutput = out;
+            loadStyles();
+            var m = out.match(/id ([a-z0-9-]+)\.?\s*$/);   // switch to the new style
+            if (m && m[1]) { var id = m[1]; llmStyle = id; llmAction("set-style " + id, "Activating new style…"); }
+        });
+    }
+
     // Fetch the selectable models for the chosen provider (uses the pasted key,
     // or the already-saved key if the field is empty). Keeps "auto" on top.
     function loadCloudModels() {
@@ -777,6 +789,34 @@ KCM.SimpleKCM {
                 visible: styleCombo.currentIndex >= 0 && root.llmStyles.length > 0
                 text: (root.llmStyles[styleCombo.currentIndex] || {}).language || ""
                 color: Kirigami.Theme.disabledTextColor
+            }
+        }
+
+        // ── AI wizard: create your own commentator style ───────────────────
+        ColumnLayout {
+            Kirigami.FormData.label: "New style:"
+            spacing: 2
+            RowLayout {
+                spacing: Kirigami.Units.smallSpacing
+                PlasmaComponents3.TextField {
+                    id: newStyleField
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 17
+                    placeholderText: "Describe a commentator, e.g. ‘excitable Spanish radio’"
+                    onAccepted: if (text.length > 3 && root.llmBusy === "") { root.createStyle(text); text = ""; }
+                }
+                PlasmaComponents3.Button {
+                    text: "Create with AI"
+                    icon.name: "list-add"
+                    enabled: root.llmBusy === "" && newStyleField.text.length > 3
+                    onClicked: { root.createStyle(newStyleField.text); newStyleField.text = ""; }
+                }
+            }
+            PlasmaComponents3.Label {
+                text: "The AI writes a full profile — persona, voice & language — from your description, then switches to it."
+                color: Kirigami.Theme.disabledTextColor
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                wrapMode: Text.WordWrap; Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 24
             }
         }
 
