@@ -133,14 +133,30 @@ PlasmoidItem {
     }
 
     // Runs the LLM control helper (enable/disable/set-model) on "Apply".
+    // run(cmd, cb) — cb is optional; called with trimmed stdout.
     Plasma5Support.DataSource {
         id: llmCtl
         engine: "executable"
         connectedSources: []
         property int seq: 0
-        onNewData: function(source, data) { disconnectSource(source); }
-        function run(cmd) { seq += 1; connectSource(cmd + " ; : " + seq); }
+        property var cbs: ({})
+        onNewData: function(source, data) {
+            var out = (data && data["stdout"] !== undefined) ? ("" + data["stdout"]) : "";
+            disconnectSource(source);
+            var cb = cbs[source]; if (cb) { delete cbs[source]; cb(out.trim()); }
+        }
+        function run(cmd, cb) { seq += 1; var src = cmd + " ; : " + seq; if (cb) cbs[src] = cb; connectSource(src); }
     }
+
+    // Active commentator style's accent colour (used only for the live-commentary
+    // marker, so it never overrides the user's chosen live/team colours).
+    property color commentatorAccent: liveColor
+    function refreshCommentatorAccent() {
+        llmCtl.run(llmHelper + " status", function(out) {
+            try { var s = JSON.parse(out); if (s.accent) commentatorAccent = s.accent; } catch (e) {}
+        });
+    }
+    onExpandedChanged: if (expanded) refreshCommentatorAccent()
 
     onSoundOutputDeviceChanged: updateAudioDevice()
 
@@ -211,6 +227,7 @@ PlasmoidItem {
 
     Component.onCompleted: {
         loadAllData();
+        refreshCommentatorAccent();
     }
 
     property var lastGoalCounts: ({})

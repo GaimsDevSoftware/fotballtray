@@ -171,8 +171,10 @@ case "${1:-status}" in
             CB=$(grep -oP 'LLM_API_BASE=\K\S+' "$CLOUD_CONF" 2>/dev/null | tail -1)
             CM=$(grep -oP 'LLM_MODEL=\K\S+'    "$CLOUD_CONF" 2>/dev/null | tail -1)
         fi
-        printf '{"backend":"%s","cloudBase":"%s","cloudModel":"%s","style":"%s","ollamaInstalled":%s,"ollamaRunning":%s,"model":"%s","modelInstalled":%s,"serviceActive":%s,"serviceEnabled":%s,"models":"%s"}\n' \
-            "$BACKEND" "$CB" "$CM" "$(active_style)" "$OI" "$OR" "$M" "$MI" "$SA" "$SE" "$MODELS"
+        STY=$(active_style)
+        ACCENT=$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('$PROFILES_DIR/$STY.json'))).get('accent','#2E9BF0'))" 2>/dev/null || echo "#2E9BF0")
+        printf '{"backend":"%s","cloudBase":"%s","cloudModel":"%s","style":"%s","accent":"%s","ollamaInstalled":%s,"ollamaRunning":%s,"model":"%s","modelInstalled":%s,"serviceActive":%s,"serviceEnabled":%s,"models":"%s"}\n' \
+            "$BACKEND" "$CB" "$CM" "$STY" "$ACCENT" "$OI" "$OR" "$M" "$MI" "$SA" "$SE" "$MODELS"
         ;;
     key-url)
         # Print the signup URL for a provider's free key (for the settings "Get key" button).

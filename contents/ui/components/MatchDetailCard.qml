@@ -17,6 +17,9 @@ Item {
 
     // User-configurable colour for live/result accents (score, minute, dot, tint).
     property color liveColor: Kirigami.Theme.positiveTextColor
+    // Active commentator style's accent — applied ONLY to the live-commentary
+    // marker, never to scores/teams (those keep the user's chosen colours).
+    property color accentColor: liveColor
 
     // When the user disables animations system-wide, Kirigami durations collapse
     // to ~1 — use that as a reduced-motion proxy (no direct QML media query).
@@ -301,7 +304,9 @@ Item {
                 anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.left: parent.left
                 anchors.topMargin: 6; anchors.bottomMargin: 6
                 width: 3; radius: 1.5
-                color: detailCard.tint(detailCard.liveColor, 0.9)
+                // AI commentary → the style's accent; factual summary → liveColor.
+                color: detailCard.tint((matchObj && matchObj.aiCommentary === true)
+                                       ? detailCard.accentColor : detailCard.liveColor, 0.9)
             }
 
             ColumnLayout {
@@ -321,7 +326,7 @@ Item {
                     Kirigami.Heading {
                         text: "Live commentary"
                         level: 6; font.pixelSize: 9; font.bold: true
-                        color: detailCard.liveColor
+                        color: detailCard.accentColor
                     }
                 }
 

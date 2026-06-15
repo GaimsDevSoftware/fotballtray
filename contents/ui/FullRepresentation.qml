@@ -158,6 +158,7 @@ Item {
                         Layout.fillWidth: true
                         matchObj: { root.dataVersion; return fullRep.displayMatches[index]; }
                         liveColor: root.liveColor
+                        accentColor: root.commentatorAccent
                     }
                 }
             }
