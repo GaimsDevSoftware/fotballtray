@@ -861,13 +861,21 @@ KCM.SimpleKCM {
                 textRole: "text"; valueRole: "value"
                 Component.onCompleted: currentIndex = Math.max(0, indexOfValue(cfg_commentaryMode))
             }
-            // Always-visible voice test — works for local AND cloud backends.
+            // Voice-only test (fixed line) — fast check of the sound + device.
             PlasmaComponents3.Button {
                 text: "Test voice"
                 icon.name: "audio-volume-high"
                 enabled: root.llmBusy === ""
                 onClicked: root.llmAction("test-voice " + JSON.stringify(deviceCombo.currentValue || ""),
                                           "Speaking a test line…")
+            }
+            // Full test — GENERATE via the active backend (cloud/Ollama) AND speak it.
+            PlasmaComponents3.Button {
+                text: "Test commentary"
+                icon.name: "text-speak"
+                enabled: root.llmBusy === ""
+                onClicked: root.llmAction("test " + JSON.stringify(deviceCombo.currentValue || ""),
+                                          "Generating + speaking…")
             }
         }
 
@@ -903,12 +911,8 @@ KCM.SimpleKCM {
                 enabled: root.llmBusy === "" && root.llmOllamaInstalled
                 onClicked: root.llmAction("pull-model " + llmModelCombo.editText, "Downloading model…")
             }
-            PlasmaComponents3.Button {
-                text: "Test"
-                icon.name: "media-playback-start"
-                enabled: root.llmBusy === "" && root.llmModelInstalled
-                onClicked: root.llmAction("test " + JSON.stringify(deviceCombo.currentValue || ""), "Generating + speaking…")
-            }
+            // (The commentary test now lives on the Output row as "Test commentary",
+            //  available in both local and cloud mode.)
         }
 
         // Busy / last-result line
