@@ -1,4 +1,4 @@
-# Football Live — KDE Plasma 6 widget
+# FootballTray — KDE Plasma 6 widget
 
 Live football scores in your system tray, with match details, line-ups, group
 tables, knockout brackets and optional AI commentary.
@@ -25,14 +25,14 @@ tables, knockout brackets and optional AI commentary.
 
 ### From the KDE Store
 Right-click your panel → **Add Widgets → Get New Widgets → Download New
-Plasma Widgets**, then search for **Football Live**.
+Plasma Widgets**, then search for **FootballTray**.
 
 ### Manual
 ```sh
 git clone https://github.com/GaimsDevSoftware/fotballtray.git
 kpackagetool6 --type Plasma/Applet --install fotballtray
 ```
-Then add the **Football Live** widget to your panel / system tray.
+Then add the **FootballTray** widget to your panel / system tray.
 
 ## Optional backend (live data + AI commentary)
 

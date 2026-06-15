@@ -10,7 +10,7 @@
         "Icon": "futbol",
         "Id": "org.kde.fotballtray",
         "License": "MIT",
-        "Name": "Football Live",
+        "Name": "FootballTray",
         "ServiceTypes": [
             "Plasma/Applet"
         ],
