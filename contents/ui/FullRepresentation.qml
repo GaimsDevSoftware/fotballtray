@@ -19,6 +19,17 @@ Item {
     readonly property var theme: root.themeFor(root.activeLeagueId)
     property int currentTab: 0
 
+    // Is the active commentator voice narrating a live match right now?
+    readonly property bool commentaryLive: {
+        root.dataVersion;
+        var ms = displayMatches;
+        for (var i = 0; i < ms.length; i++) {
+            var m = ms[i];
+            if ((m.status === "in" || m.status === "ht") && m.aiCommentary === true) return true;
+        }
+        return false;
+    }
+
     Connections {
         target: root
         function onExpandedChanged() {
@@ -46,6 +57,35 @@ Item {
             GradientStop { position: 0.0; color: theme.primary || Kirigami.Theme.highlightColor }
             GradientStop { position: 0.5; color: theme.accent || Qt.rgba(1,1,1,0.0) }
             GradientStop { position: 1.0; color: theme.primary || Kirigami.Theme.highlightColor }
+        }
+    }
+
+    // ── Tally Light: which commentator voice is on air ─────────────────────
+    // Top-right of the header. Only while a live match is being narrated; uses
+    // the active style's accent. Never touches scores/teams/tabs.
+    Row {
+        id: onAir
+        anchors.top: parent.top; anchors.right: parent.right
+        anchors.topMargin: Kirigami.Units.largeSpacing * 1.4
+        anchors.rightMargin: Kirigami.Units.largeSpacing * 1.4
+        spacing: 6
+        z: 50
+        visible: root.commentatorEnabled && fullRep.commentaryLive
+        Rectangle {
+            width: 9; height: 9; radius: 4.5
+            anchors.verticalCenter: parent.verticalCenter
+            color: root.commentatorAccent
+            SequentialAnimation on opacity {
+                loops: Animation.Infinite; running: onAir.visible
+                NumberAnimation { from: 1.0; to: 0.3; duration: 800; easing.type: Easing.InOutSine }
+                NumberAnimation { from: 0.3; to: 1.0; duration: 800; easing.type: Easing.InOutSine }
+            }
+        }
+        Kirigami.Heading {
+            text: "ON AIR"
+            level: 6; font.pixelSize: 9; font.bold: true
+            color: root.commentatorAccent
+            anchors.verticalCenter: parent.verticalCenter
         }
     }
 
