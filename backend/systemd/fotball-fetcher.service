@@ -1,0 +1,16 @@
+[Unit]
+Description=Fotball Live Data Fetcher
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/fotball-data-fetcher.py
+Restart=always
+RestartSec=10
+Environment=PYTHONUNBUFFERED=1
+Environment=XDG_RUNTIME_DIR=/run/user/%U
+Environment=PULSE_RUNTIME_PATH=/run/user/%U/pulse
+
+[Install]
+WantedBy=default.target

@@ -23,22 +23,37 @@ tables, knockout brackets and optional AI commentary.
 
 ## Install
 
-### From the KDE Store
-Right-click your panel → **Add Widgets → Get New Widgets → Download New
-Plasma Widgets**, then search for **FootballTray**.
+FootballTray is a panel widget **plus** a small local data backend (a Python
+fetcher + a localhost JSON server) that feeds it live scores. The one-line
+installer sets up both.
 
-### Manual
 ```sh
 git clone https://github.com/GaimsDevSoftware/fotballtray.git
-kpackagetool6 --type Plasma/Applet --install fotballtray
+cd fotballtray
+./install.sh
 ```
-Then add the **FootballTray** widget to your panel / system tray.
 
-## Optional backend (live data + AI commentary)
+Then add it: right-click your panel → **Add Widgets** → search **FootballTray**.
 
-The widget reads match data from a small local data service and an optional
-commentary generator. See the in-app **Settings → Live commentary (AI)** panel
-to enable local (Ollama) or free cloud commentary.
+To remove everything: `./uninstall.sh` (add `--purge` to also delete cached data).
+
+### Requirements
+- **KDE Plasma 6** (`kpackagetool6`, `systemctl --user`)
+- **Python 3** with the `requests` module (`python3-requests`)
+- *Optional — spoken commentary:* a TTS voice — [piper](https://github.com/rhasspy/piper)
+  (`en_GB-alan-medium`) or [Kokoro](https://github.com/hexgrad/kokoro), plus
+  `paplay` (PipeWire/PulseAudio)
+- *Optional — AI commentary:* either [Ollama](https://ollama.com) (local GPU) or a
+  free cloud API key (OpenRouter / Groq / Gemini — no GPU, no card)
+
+## Live AI commentary (optional)
+
+In the widget's **Settings → Commentary** tab, choose an engine:
+- **Local GPU (Ollama)** — runs entirely on your machine; nothing leaves it.
+- **Free cloud (no GPU)** — pick a provider, click **Get free key**, paste it,
+  and **Set up cloud**. It tests the key, picks a free model and switches over.
+
+Use **Test voice** / **Test commentary** to hear it.
 
 ## License
 

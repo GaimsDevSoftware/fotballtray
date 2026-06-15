@@ -45,8 +45,8 @@ PlasmoidItem {
     property string commentatorModel:   Plasmoid.configuration.commentatorModel || "gemma4:12b"
     // How live commentary is presented: both | sound | text
     property string commentaryMode:     Plasmoid.configuration.commentaryMode || "both"
-    readonly property string llmHelper: "/home/robert/.local/bin/fotball-llm-ctl.sh"
-    readonly property string ttsHelper: "/home/robert/.local/bin/fotball-tts.sh"
+    readonly property string llmHelper: "$HOME/.local/bin/fotball-llm-ctl.sh"
+    readonly property string ttsHelper: "$HOME/.local/bin/fotball-tts.sh"
     property var lastSpokenAi: ({})  // match id → last spoken commentary id
 
     // Speak new AI commentary aloud (when the mode includes sound). First sighting
@@ -156,7 +156,7 @@ PlasmoidItem {
         audioOut.device = mediaDevices.defaultAudioOutput;
     }
 
-    readonly property string playHelper: "/home/robert/.local/bin/fotball-play.sh"
+    readonly property string playHelper: "$HOME/.local/bin/fotball-play.sh"
 
     function playSoundFile(file) {
         if (!file) return;

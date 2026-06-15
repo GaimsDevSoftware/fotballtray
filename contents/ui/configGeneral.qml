@@ -42,7 +42,7 @@ KCM.SimpleKCM {
     property var availableLeagues: []
 
     // ── LLM commentator management (via fotball-llm-ctl.sh) ────────────────────
-    property string llmHelper: "/home/robert/.local/bin/fotball-llm-ctl.sh"
+    property string llmHelper: "$HOME/.local/bin/fotball-llm-ctl.sh"
     property bool   llmOllamaInstalled: false
     property bool   llmOllamaRunning:   false
     property bool   llmModelInstalled:  false
@@ -162,7 +162,7 @@ KCM.SimpleKCM {
         if (!file) return;
         // Route through paplay --device (reliable) so Test plays on the selected
         // device — matches how the widget plays sounds at runtime.
-        llmExec.exec("/home/robert/.local/bin/fotball-play.sh " + file + " "
+        llmExec.exec("$HOME/.local/bin/fotball-play.sh " + file + " "
                      + JSON.stringify(deviceCombo.currentValue || ""));
     }
 
