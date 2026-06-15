@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# fotball-llm-ctl.sh — management helper for the Football Live LLM commentator.
+# fotball-llm-ctl.sh - management helper for the Football Live LLM commentator.
 # Invoked by the plasmoid settings (Plasma5Support executable engine) and usable
 # standalone. Every action prints a final status line; `status` prints JSON.
 set -uo pipefail
@@ -200,7 +200,7 @@ PY
         # The model writes the creative parts; we guarantee a valid voice/lang +
         # a good shout-on-goals prosody, so the result is always functional.
         DESC="${2:?description required}"
-        SYS="You design commentator profiles for a football text-to-speech app. Output ONLY one JSON object — no prose, no code fence."
+        SYS="You design commentator profiles for a football text-to-speech app. Output ONLY one JSON object - no prose, no code fence."
         USR="Create a football commentator profile from this description: \"$DESC\".
 Return JSON with EXACTLY these keys:
   name: a short style name (max 40 chars)
@@ -209,7 +209,7 @@ Return JSON with EXACTLY these keys:
   systemPrompt: a vivid system prompt for the commentator persona. It MUST make the model reply IN that language, present-tense and live, ERUPT on a goal, be dramatic on a red card, and end with hard rules: reply with ONLY the commentary line (no labels or quotes), 1-2 sentences, max ~35 words, normal spelling.
 Output ONLY the JSON object."
         OUT=$(llm_complete "$SYS" "$USR") || { echo "FAILED: the model did not respond."; exit 1; }
-        [ -z "$OUT" ] && { echo "FAILED: empty model output (all free models busy — try again in a minute)."; exit 1; }
+        [ -z "$OUT" ] && { echo "FAILED: empty model output (all free models busy - try again in a minute)."; exit 1; }
         OUT="$OUT" python3 - <<'PY'
 import sys, json, re, os, unicodedata
 raw = os.environ.get("OUT", "")
@@ -244,7 +244,7 @@ prof = {"id":slug,"name":name,"language":lang,"voice":voice,"ttsLang":tts,"accen
 dd = os.path.expanduser("~/.local/share/fotballtray/commentators")
 os.makedirs(dd, exist_ok=True)
 open(os.path.join(dd, slug+".json"),"w").write(json.dumps(prof, ensure_ascii=False, indent=2))
-print("DONE: created style '%s' (%s) — id %s." % (name, lang, slug))
+print("DONE: created style '%s' (%s) - id %s." % (name, lang, slug))
 PY
         ;;
     set-style)
@@ -270,7 +270,7 @@ PY
     list-models)
         # list-models <provider|baseurl> [apikey]
         # A CURATED short-list (≤5) of FREE models well suited to writing short,
-        # dramatic commentary lines — each with a one-line pro/con. "Auto" first.
+        # dramatic commentary lines - each with a one-line pro/con. "Auto" first.
         # If no key is given and a cloud key is already saved, reuse it.
         PROV="${2:?provider required}"; KEY="${3:-}"
         BASE=$(provider_base "$PROV")
@@ -278,7 +278,7 @@ PY
             SAVED_BASE=$(grep -oP 'LLM_API_BASE=\K\S+' "$CLOUD_CONF" 2>/dev/null)
             [ "$SAVED_BASE" = "$BASE" ] && KEY=$(grep -oP 'LLM_API_KEY=\K\S+' "$CLOUD_CONF" 2>/dev/null)
         fi
-        AUTO='{"id":"auto","label":"Auto — recommended","pros":"Always picks a working free model for you.","cons":"You don’t choose which one."}'
+        AUTO='{"id":"auto","label":"Auto - recommended","pros":"Always picks a working free model for you.","cons":"You don’t choose which one."}'
         if [ -z "$KEY" ]; then echo "[$AUTO]"; exit 0; fi
         curl -s --max-time 12 "$BASE/models" -H "Authorization: Bearer $KEY" \
             | AUTO="$AUTO" python3 -c '
@@ -296,13 +296,13 @@ catalog = [
      "Best all-rounder: natural, dramatic, follows the brief and the word limit.",
      "A little slower than the small models."),
   ("deepseek",      "DeepSeek V3",
-     "Most vivid and theatrical — superb at goal “screamers”.",
+     "Most vivid and theatrical - superb at goal “screamers”.",
      "Can run long or get carried away with flourish."),
   ("qwen",          "Qwen 72B",
-     "Crisp and obedient — sticks tightly to one or two sentences.",
+     "Crisp and obedient - sticks tightly to one or two sentences.",
      "A touch less poetic than the others."),
   ("gemini-2",      "Gemini Flash",
-     "Very fast — the lowest latency for live moments.",
+     "Very fast - the lowest latency for live moments.",
      "Can play it safe and sound a bit flat."),
   ("mistral",       "Mistral",
      "Light and quick, fine for short lines on modest hardware.",
@@ -335,7 +335,7 @@ except Exception: print("")')
         TEXT=$(curl -s --max-time 45 "$BASE/chat/completions" \
             -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
             -H "HTTP-Referer: https://store.kde.org/p/fotballtray" -H "X-Title: FootballTray" \
-            -d "{\"model\":\"$MODEL\",\"max_tokens\":80,\"temperature\":0.9,\"messages\":[{\"role\":\"system\",\"content\":\"You are a British TV football commentator like Peter Drury — poetic, dramatic. Reply with ONLY the line, max 35 words.\"},{\"role\":\"user\",\"content\":\"GOAL! Erupt: Haaland thunders one into the top corner to make it 2-1 for Norway at the World Cup.\"}]}" \
+            -d "{\"model\":\"$MODEL\",\"max_tokens\":80,\"temperature\":0.9,\"messages\":[{\"role\":\"system\",\"content\":\"You are a British TV football commentator like Peter Drury - poetic, dramatic. Reply with ONLY the line, max 35 words.\"},{\"role\":\"user\",\"content\":\"GOAL! Erupt: Haaland thunders one into the top corner to make it 2-1 for Norway at the World Cup.\"}]}" \
             | python3 -c 'import sys,json
 try:
     d=json.load(sys.stdin); c=d.get("choices") or []
@@ -404,7 +404,7 @@ except Exception: print("")')
         # Full pipeline test: GENERATE a line via the active backend (cloud or
         # Ollama) and SPEAK it. Tests the LLM + the voice together.
         DEV="${2:-}"
-        SYS="You are a British TV football commentator in the style of Peter Drury — poetic, dramatic, breathless. Reply with ONLY the commentary line, max 35 words."
+        SYS="You are a British TV football commentator in the style of Peter Drury - poetic, dramatic, breathless. Reply with ONLY the commentary line, max 35 words."
         USR="GOAL! Erupt: Haaland thunders one into the top corner to make it 2-1 for Norway at the World Cup."
         TEXT=""
         if cloud_active; then
@@ -454,7 +454,7 @@ PY
         ( "$HOME/.local/bin/fotball-tts.sh" __test__ "$DEV" >/dev/null 2>&1 & )
         ;;
     test-voice)
-        # Speak a fixed sample commentary line via TTS — backend-agnostic, so it
+        # Speak a fixed sample commentary line via TTS - backend-agnostic, so it
         # tests the VOICE + audio device whether the engine is Ollama or cloud.
         DEV="${2:-}"
         python3 - <<'PY'
@@ -463,7 +463,7 @@ p = os.path.expanduser("~/.cache/fotballtray/commentary.json")
 try: d = json.load(open(p))
 except Exception: d = {}
 if not isinstance(d, dict): d = {}
-d["__test__"] = {"text": "Haaland rises like a thunderclap, and Norway surge ahead — a world-class strike, two-one, sending a nation into rapture!", "type": "goal"}
+d["__test__"] = {"text": "Haaland rises like a thunderclap, and Norway surge ahead - a world-class strike, two-one, sending a nation into rapture!", "type": "goal"}
 json.dump(d, open(p, "w"), ensure_ascii=False)
 PY
         ( "$HOME/.local/bin/fotball-tts.sh" __test__ "$DEV" >/dev/null 2>&1 & )

@@ -135,7 +135,7 @@ Item {
             clip: true
 
             ColumnLayout {
-                // Bind to availableWidth — parent.width is circular inside a
+                // Bind to availableWidth - parent.width is circular inside a
                 // ScrollView and collapses fillWidth children to 0.
                 width: matchesScroll.availableWidth
                 spacing: Kirigami.Units.smallSpacing

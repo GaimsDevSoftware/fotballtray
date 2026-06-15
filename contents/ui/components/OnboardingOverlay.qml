@@ -6,8 +6,8 @@ import org.kde.kirigami as Kirigami
 // app does and how to set it up, with slide/fade step transitions, a floating
 // icon, progress dots and Skip / Back / Next navigation.
 //
-//   signal finished()       — user finished or skipped; caller persists the flag
-//   signal openSettings()   — user asked to open the configuration dialog
+//   signal finished()       - user finished or skipped; caller persists the flag
+//   signal openSettings()   - user asked to open the configuration dialog
 Item {
     id: ob
     anchors.fill: parent
@@ -22,13 +22,13 @@ Item {
         { icon: "⚽", title: "Welcome to FootballTray",
           body: "Live football scores, right in your system tray. Here's a quick 30-second tour." },
         { icon: "👀", title: "At a glance",
-          body: "Your panel shows the score, the two teams and the match clock — with a softly blinking live dot while a match is being played." },
+          body: "Your panel shows the score, the two teams and the match clock - with a softly blinking live dot while a match is being played." },
         { icon: "📊", title: "The full picture",
           body: "Click the tray icon to open live & finished matches, group tables, knockout brackets, and a detailed match card with line-ups and player ratings." },
-        { icon: "🎙️", title: "Live AI commentary — optional",
-          body: "British-TV-style commentary on goals and red cards, optionally read aloud. Run it locally on your GPU (Ollama), or use a free cloud provider (OpenRouter / Groq / Gemini) — no GPU needed." },
+        { icon: "🎙️", title: "Live AI commentary - optional",
+          body: "British-TV-style commentary on goals and red cards, optionally read aloud. Run it locally on your GPU (Ollama), or use a free cloud provider (OpenRouter / Groq / Gemini) - no GPU needed." },
         { icon: "🚀", title: "Set it up",
-          body: "1.  Open Settings → add your favourite teams & leagues.\n2.  (Optional) switch on Live commentary.\n\nThat's it — enjoy the football!" }
+          body: "1.  Open Settings → add your favourite teams & leagues.\n2.  (Optional) switch on Live commentary.\n\nThat's it - enjoy the football!" }
     ]
     readonly property bool isLast: step === steps.length - 1
 
@@ -130,7 +130,7 @@ Item {
                         NumberAnimation { from: -7; to: 0;  duration: 1100; easing.type: Easing.InOutSine }
                     }
                 }
-                // Pulsing live dot — only on the "at a glance" step
+                // Pulsing live dot - only on the "at a glance" step
                 Rectangle {
                     visible: ob.step === 1
                     anchors { right: parent.right; top: parent.top; rightMargin: Kirigami.Units.gridUnit; topMargin: Kirigami.Units.gridUnit }

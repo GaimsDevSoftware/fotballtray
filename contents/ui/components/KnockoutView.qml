@@ -65,7 +65,7 @@ ColumnLayout {
         Layout.topMargin: Kirigami.Units.largeSpacing
     }
 
-    // ── Projected Round of 32 — clean two-column bracket of stacked cards ───
+    // ── Projected Round of 32 - clean two-column bracket of stacked cards ───
     GridLayout {
         Layout.fillWidth: true
         Layout.topMargin: Kirigami.Units.smallSpacing

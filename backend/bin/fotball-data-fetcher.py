@@ -436,7 +436,7 @@ def parse_espn_match(event, league_id, league_name, league_logo=""):
         elif state == "post":
             display = "FT"
         elif state == "pre":
-            display = status_type.get("shortDetail", detail) or "—"
+            display = status_type.get("shortDetail", detail) or "-"
         else:
             display = state.upper()
 
@@ -653,7 +653,7 @@ def enrich_with_details(match):
             elif home_away == "away":
                 match["lineups"]["away"] = lineup_list
 
-        # Team statistics — ESPN puts these in boxscore.teams[i].statistics as a
+        # Team statistics - ESPN puts these in boxscore.teams[i].statistics as a
         # flat list of {name, displayValue}, with homeAway on the team object.
         # (The old code read data["statistics"], which is always null → empty.)
         # ESPN stat names → the keys the widget's stat map expects.
@@ -923,7 +923,7 @@ def enrich_with_fotmob(match):
         if not content:
             return
 
-        # Stats (incl. xG) — overlay each key FotMob provides, keep ESPN for the rest.
+        # Stats (incl. xG) - overlay each key FotMob provides, keep ESPN for the rest.
         fm_stats = _fotmob_parse_stats(content)
         if fm_stats:
             merged = dict(match.get("stats") or {})
@@ -1070,7 +1070,7 @@ def fetch_all_matches(leagues):
                 all_matches.append(match)
 
     # Order: live first, then upcoming (soonest first), then finished
-    # (most RECENT first — freshest results on top, oldest at the bottom).
+    # (most RECENT first - freshest results on top, oldest at the bottom).
     def by_time(m):
         return m.get("matchTime", "") or ""
     live = sorted([m for m in all_matches if m["status"] in ("in", "ht")], key=by_time)
@@ -1550,7 +1550,7 @@ def project_knockout(tables):
     third_slots = [i for i, (_h, a) in enumerate(R32_TEMPLATE) if a[0] == "3"]
     slot_elig = {i: R32_TEMPLATE[i][1][1] for i in third_slots}
     assign = _match_thirds(third_groups, slot_elig)
-    if assign is None:  # data not far enough along — assign by rank as a fallback
+    if assign is None:  # data not far enough along - assign by rank as a fallback
         assign = {slot: third_groups[k] for k, slot in enumerate(third_slots) if k < len(third_groups)}
 
     def label(spec):
@@ -1584,7 +1584,7 @@ def project_knockout(tables):
 
 
 def fetch_espn_standings(tournament_id):
-    """Official group standings from ESPN — real results, correct tiebreakers,
+    """Official group standings from ESPN - real results, correct tiebreakers,
     in sync with every match played. Returns {group: [rows]} or None."""
     try:
         url = f"https://site.api.espn.com/apis/v2/sports/soccer/{tournament_id}/standings"
@@ -1672,7 +1672,7 @@ def build_tournament_data(matches):
         home = m.get("homeTeam", "")
         away = m.get("awayTeam", "")
         # A knockout match has a team that isn't in any group. ONLY classify when
-        # we actually have group data — otherwise a transient group-fetch failure
+        # we actually have group data - otherwise a transient group-fetch failure
         # (all_group_teams empty) would wrongly dump every match into "Knockout".
         if all_group_teams and (home not in all_group_teams or away not in all_group_teams):
             knockout_matches.append(m)

@@ -1,4 +1,4 @@
-FootballTray — KDE Store listing (paste these)
+FootballTray - KDE Store listing (paste these)
 ================================================
 
 Title:    FootballTray
@@ -8,20 +8,20 @@ Category: Plasma 6 → Plasmoids / Plasma Add-Ons
 Tags:     football, soccer, livescore, systemtray, sports, worldcup, plasmoid
 
 Summary:
-Live football scores in your system tray — match details, line-ups, group tables, brackets & optional AI commentary.
+Live football scores in your system tray - match details, line-ups, group tables, brackets & optional AI commentary.
 
 Description:
 Follow live football right from your panel. FootballTray shows the current score, the two teams and the match clock as a compact, glanceable tray widget, with a softly blinking live indicator during play. Click it for the full picture: live & finished matches, kickoff times, goalscorers, group standings, knockout brackets and a detailed match card with line-ups and player ratings.
 
-Optional AI live commentary writes broadcast-style lines on goals, cards and the run of play — and can read them aloud in a real commentator's voice. Run it locally on your own GPU (via Ollama), or use a free cloud provider (OpenRouter, Groq, Gemini, OpenCode Zen) if you have no GPU — set up with a single paste of a free API key. In local mode, no data leaves your machine.
+Optional AI live commentary writes broadcast-style lines on goals, cards and the run of play - and can read them aloud in a real commentator's voice. Run it locally on your own GPU (via Ollama), or use a free cloud provider (OpenRouter, Groq, Gemini, OpenCode Zen) if you have no GPU - set up with a single paste of a free API key. In local mode, no data leaves your machine.
 
-Highlights (v1.0.0 — first release):
+Highlights (v1.0.0 - first release):
 - Glanceable tray widget: score, teams, match clock, blinking live dot
 - Full popup: live & finished matches, group tables, knockout brackets, top scorers, line-ups & player ratings
 - Crisp text on 4K / fractional scaling, with optional outline and soft drop shadow (toggleable per style group); shadowed round flags, no hard ring outline
 - Tabbed, modern settings (Follow / Appearance / Sound / Commentary / General)
-- Optional AI live commentary — local (Ollama) or free cloud (OpenRouter/Groq/Gemini/OpenCode Zen), one-click free-key setup
-- Commentator style profiles (British & American built in), switchable in settings — an open JSON format for adding your own styles & languages
+- Optional AI live commentary - local (Ollama) or free cloud (OpenRouter/Groq/Gemini/OpenCode Zen), one-click free-key setup
+- Commentator style profiles (British & American built in), switchable in settings - an open JSON format for adding your own styles & languages
 - Spoken commentary in a British/American voice, with an escalated "shout" on goals
 - Animated first-run onboarding tour
 - One-line installer (./install.sh) sets up the widget + its data backend

@@ -63,7 +63,7 @@ Item {
     }
 
     // --- Crisply clipped circular flag (OpacityMask is sharper than MultiEffect
-    //     on fractional scaling — it just multiplies alpha, no soft alpha ramp). ---
+    //     on fractional scaling - it just multiplies alpha, no soft alpha ramp). ---
     OpacityMask {
         id: maskedFlag
         source: flagImg

@@ -7,7 +7,7 @@ import "."
 
 // Lean standings table (research: football-livescore-app-visual-design-2026 §6).
 // Columns: Pos | flag+name | P | GD | Pts(bold). Thin qualification zone bar on
-// the left for the top 2. Flat surface, hairlines, desaturated accent — no boxes.
+// the left for the top 2. Flat surface, hairlines, desaturated accent - no boxes.
 Rectangle {
     id: groupCard
 
@@ -29,7 +29,7 @@ Rectangle {
     readonly property int wGD:   Kirigami.Units.gridUnit * 1.8
     readonly property int wPts:  Kirigami.Units.gridUnit * 1.7
 
-    // Qualification colour (top-2 advance) — follows the user's live/result colour.
+    // Qualification colour (top-2 advance) - follows the user's live/result colour.
     property color qualColor: Kirigami.Theme.positiveTextColor
 
     color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.03)
@@ -50,7 +50,7 @@ Rectangle {
         anchors.margins: Kirigami.Units.smallSpacing
         spacing: 0
 
-        // Group header — sky-blue badge + small "GROUP" label + bold name.
+        // Group header - sky-blue badge + small "GROUP" label + bold name.
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: headerHeight

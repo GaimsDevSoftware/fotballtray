@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-football-commentator.py — Ollama-powered live English football commentary.
+football-commentator.py - Ollama-powered live English football commentary.
 
 Self-contained: watches the fetcher's matches.json for NEW high-value events
 (goals, own goals, red cards) on live matches, asks a local Ollama model for a
-one-line English commentary, and writes it to commentary.json — a small overlay
+one-line English commentary, and writes it to commentary.json - a small overlay
 file that fotball-data-fetcher.py merges into each match's summary (so the
 commentary survives the fetcher rewriting matches.json every cycle).
 
@@ -52,30 +52,30 @@ LOG_FILE        = CACHE_DIR / "commentator.log"
 POLL_INTERVAL  = 5    # seconds between matches.json checks
 OLLAMA_TIMEOUT = 45   # generation timeout
 
-# Only these (rare, notable) events get a comment — calm-tech, no spam.
+# Only these (rare, notable) events get a comment - calm-tech, no spam.
 HIGH_VALUE = {"goal", "owngoal", "redcard"}
 
 # ── English football system prompt ─────────────────────────────────────────────
 
 SYSTEM_PROMPT = """\
-You are a British television football commentator — the poetry of Peter Drury
+You are a British television football commentator - the poetry of Peter Drury
 married to the explosive timing of Martin Tyler, the voice of a Premier League
 or World Cup night on Sky Sports.
 
 Voice and style:
-- Present tense, live and breathless — you are calling the action AS it happens.
+- Present tense, live and breathless - you are calling the action AS it happens.
 - Vivid and theatrical: reach for a striking image or a line of poetry, build the
-  drama with short punchy clauses and repetition for effect — but never waffle.
+  drama with short punchy clauses and repetition for effect - but never waffle.
 - On a goal, ERUPT: savour the scorer's name, then place the moment in the story
   of the match. Be dramatic for a red card; a touch sympathetic for an own goal.
 - British English. Call it football. Mention the minute or score when it lands well.
 Hard rules:
-- Reply with ONLY the commentary line — no preamble, no labels, no quotation marks.
-- 1-2 sentences, max ~35 words. Normal spelling (no "goooal" — the delivery carries it).
+- Reply with ONLY the commentary line - no preamble, no labels, no quotation marks.
+- 1-2 sentences, max ~35 words. Normal spelling (no "goooal" - the delivery carries it).
 """
 
 EVENT_PROMPTS = {
-    "goal":     "GOAL! Erupt — call this goal like a great commentator:\n",
+    "goal":     "GOAL! Erupt - call this goal like a great commentator:\n",
     "owngoal":  "OWN GOAL! Call it dramatically but with a touch of sympathy:\n",
     "redcard":  "RED CARD! A dramatic, theatrical commentary line:\n",
 }
@@ -100,7 +100,7 @@ def refresh_profile() -> None:
 
 # Occasional "run of play" commentary (not tied to an event), every few minutes.
 GENERAL_INTERVAL = 900  # 15 min of QUIET (no events) → a run-of-play comment
-GENERAL_PROMPT = "Paint the run of play in a British commentator's voice — who is on top, the feel of the game, one line:\n"
+GENERAL_PROMPT = "Paint the run of play in a British commentator's voice - who is on top, the feel of the game, one line:\n"
 _last_general = {}  # match_id → monotonic time of last general comment
 
 
@@ -464,7 +464,7 @@ def main() -> None:
                     if LLM_BACKEND == "openai":
                         log.warning("Cloud LLM not reachable at %s (check LLM_API_KEY).", LLM_API_BASE)
                     else:
-                        log.warning("Ollama not reachable at %s — start it with: ollama serve", OLLAMA_URL)
+                        log.warning("Ollama not reachable at %s - start it with: ollama serve", OLLAMA_URL)
                     warned = True
                 time.sleep(20)
                 continue

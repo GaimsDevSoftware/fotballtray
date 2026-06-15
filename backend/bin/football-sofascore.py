@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-football-sofascore.py — Live incident poller for Football Live widget.
+football-sofascore.py - Live incident poller for Football Live widget.
 
 Polls the Sofascore (unofficial) REST API for live match incidents and
 statistics, detects new events, and writes them to a commentary request
@@ -52,7 +52,7 @@ def sf_get(path: str, session: requests.Session) -> Optional[dict]:
         return r.json()
     except requests.HTTPError as e:
         if e.response is not None and e.response.status_code == 404:
-            return None  # normal — match may not be on Sofascore
+            return None  # normal - match may not be on Sofascore
         log.warning("Sofascore HTTP error %s: %s", e.response.status_code if e.response else "?", path)
         return None
     except Exception as e:
@@ -340,7 +340,7 @@ def main() -> None:
     session = requests.Session()
     session.headers.update(SF_HEADERS)
 
-    # Initial warmup — Sofascore sometimes needs a real browser visit first
+    # Initial warmup - Sofascore sometimes needs a real browser visit first
     try:
         warmup = session.get("https://www.sofascore.com/", timeout=10)
         log.info("Sofascore warmup: %d", warmup.status_code)

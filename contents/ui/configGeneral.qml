@@ -61,7 +61,7 @@ KCM.SimpleKCM {
     property string llmStyle:  "british"
     // Curated selectable cloud models for the current provider (objects with
     // {id, label, pros, cons}). "Auto" is always first.
-    property var    cloudModelList: [{ id: "auto", label: "Auto — recommended",
+    property var    cloudModelList: [{ id: "auto", label: "Auto - recommended",
         pros: "Always picks a working free model for you.", cons: "You don’t choose which one." }]
 
     Plasma5Support.DataSource {
@@ -139,7 +139,7 @@ KCM.SimpleKCM {
             function(out) {
                 var list = [];
                 try { list = JSON.parse(out) || []; } catch (e) { list = []; }
-                if (!list.length) list = [{ id: "auto", label: "Auto — recommended",
+                if (!list.length) list = [{ id: "auto", label: "Auto - recommended",
                     pros: "Always picks a working free model for you.", cons: "Paste a key to load the list." }];
                 root.cloudModelList = list;
             });
@@ -154,7 +154,7 @@ KCM.SimpleKCM {
             if (out && out.indexOf("http") === 0) {
                 llmOutput = "Opened " + out + " in your browser.";
             } else {
-                llmOutput = "Could not open a browser automatically — visit the provider's key page manually.";
+                llmOutput = "Could not open a browser automatically - visit the provider's key page manually.";
             }
         });
     }
@@ -209,7 +209,7 @@ KCM.SimpleKCM {
     function playTest(file) {
         if (!file) return;
         // Route through paplay --device (reliable) so Test plays on the selected
-        // device — matches how the widget plays sounds at runtime.
+        // device - matches how the widget plays sounds at runtime.
         llmExec.exec("$HOME/.local/bin/fotball-play.sh " + file + " "
                      + JSON.stringify(deviceCombo.currentValue || ""));
     }
@@ -360,7 +360,7 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: "Result/time colour:"
             spacing: Kirigami.Units.smallSpacing
 
-            // Canonical Plasma colour control — backs cfg_liveColor and saves
+            // Canonical Plasma colour control - backs cfg_liveColor and saves
             // reliably (alias to a custom property did NOT persist).
             KQuickControls.ColorButton {
                 id: liveColorButton
@@ -476,14 +476,14 @@ KCM.SimpleKCM {
                         border.width: outlineCheck.checked ? 1 : 0
                         Layout.alignment: Qt.AlignVCenter
                     }
-                    OutlinedLabel {  // team name — group 2
+                    OutlinedLabel {  // team name - group 2
                         text: "NOR"
                         level: 4
                         color: teamColorButton.color
                         outlined: teamOutlineCheck.checked
                         shadow: teamShadowCheck.checked
                     }
-                    OutlinedLabel {  // score + time — group 1
+                    OutlinedLabel {  // score + time - group 1
                         text: "2 – 1   67′"
                         level: 4
                         color: liveColorButton.color
@@ -739,7 +739,7 @@ KCM.SimpleKCM {
                     return list;
                 }
                 textRole: "text"; valueRole: "value"
-                // Audio device model is async — restore once it's populated
+                // Audio device model is async - restore once it's populated
                 onCountChanged: {
                     if (!restored && count > 1) {
                         currentIndex = Math.max(0, indexOfValue(cfg_soundOutputDevice));
@@ -764,7 +764,7 @@ KCM.SimpleKCM {
 
         Kirigami.Heading {
             Kirigami.FormData.label: ""
-            text: "An LLM writes British-TV-style commentary on goals, cards and the run of play; an optional British voice reads it aloud. Run it locally on your own GPU (Ollama, default gemma4:12b), or — if you have no GPU — use a free cloud provider below (e.g. OpenRouter). No data leaves your machine in local mode."
+            text: "An LLM writes British-TV-style commentary on goals, cards and the run of play; an optional British voice reads it aloud. Run it locally on your own GPU (Ollama, default gemma4:12b), or - if you have no GPU - use a free cloud provider below (e.g. OpenRouter). No data leaves your machine in local mode."
             level: 6; color: Kirigami.Theme.disabledTextColor
             wrapMode: Text.WordWrap; Layout.fillWidth: true
             Layout.maximumWidth: Kirigami.Units.gridUnit * 22
@@ -812,7 +812,7 @@ KCM.SimpleKCM {
                 }
             }
             PlasmaComponents3.Label {
-                text: "The AI writes a full profile — persona, voice & language — from your description, then switches to it."
+                text: "The AI writes a full profile - persona, voice & language - from your description, then switches to it."
                 color: Kirigami.Theme.disabledTextColor
                 font.pointSize: Kirigami.Theme.smallFont.pointSize
                 wrapMode: Text.WordWrap; Layout.fillWidth: true
@@ -901,7 +901,7 @@ KCM.SimpleKCM {
             }
 
             PlasmaComponents3.Label {
-                text: "1) Click \"Get free key\", sign up (no card for OpenRouter/Groq/Gemini), copy your key.\n2) Paste it below and click \"Set up cloud\" — it tests the key, picks a free model, and switches over."
+                text: "1) Click \"Get free key\", sign up (no card for OpenRouter/Groq/Gemini), copy your key.\n2) Paste it below and click \"Set up cloud\" - it tests the key, picks a free model, and switches over."
                 color: Kirigami.Theme.disabledTextColor
                 wrapMode: Text.WordWrap; Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 24
@@ -963,7 +963,7 @@ KCM.SimpleKCM {
                 visible: root.llmBackend === "cloud" && root.llmCloudBase !== ""
                 text: {
                     var host = root.llmCloudBase.replace(/^https?:\/\//, "").split("/")[0];
-                    return "✓ A working key is saved — " + host
+                    return "✓ A working key is saved - " + host
                          + (root.llmCloudModel ? " · " + root.llmCloudModel : "")
                          + ". Paste a new key only to replace it.";
                 }
@@ -993,12 +993,12 @@ KCM.SimpleKCM {
             }
         }
 
-        // Enable toggle — saved on "Apply" (the plasmoid then enables/disables
+        // Enable toggle - saved on "Apply" (the plasmoid then enables/disables
         // the systemd service to match).
         PlasmaComponents3.Switch {
             id: commentatorEnabledCheck
             Kirigami.FormData.label: "Live commentary:"
-            text: "Enabled — comment on goals and red cards"
+            text: "Enabled - comment on goals and red cards"
         }
 
         // Output mode: voice reads it aloud (British TTS voice), text, or both.
@@ -1014,7 +1014,7 @@ KCM.SimpleKCM {
                 textRole: "text"; valueRole: "value"
                 Component.onCompleted: currentIndex = Math.max(0, indexOfValue(cfg_commentaryMode))
             }
-            // Voice-only test (fixed line) — fast check of the sound + device.
+            // Voice-only test (fixed line) - fast check of the sound + device.
             PlasmaComponents3.Button {
                 text: "Test voice"
                 icon.name: "audio-volume-high"
@@ -1022,7 +1022,7 @@ KCM.SimpleKCM {
                 onClicked: root.llmAction("test-voice " + JSON.stringify(deviceCombo.currentValue || ""),
                                           "Speaking a test line…")
             }
-            // Full test — GENERATE via the active backend (cloud/Ollama) AND speak it.
+            // Full test - GENERATE via the active backend (cloud/Ollama) AND speak it.
             PlasmaComponents3.Button {
                 text: "Test commentary"
                 icon.name: "text-speak"
@@ -1032,7 +1032,7 @@ KCM.SimpleKCM {
             }
         }
 
-        // Model — also saved on "Apply". Pick an installed one or type a new
+        // Model - also saved on "Apply". Pick an installed one or type a new
         // name and use "Download / install model" first.
         RowLayout {
             Kirigami.FormData.label: "Model:"
@@ -1175,7 +1175,7 @@ KCM.SimpleKCM {
         }
 
         // Hidden holder so the alias has something to bind to for saving.
-        // NB: no `text:` binding — the alias IS leagueValue.text, so binding it
+        // NB: no `text:` binding - the alias IS leagueValue.text, so binding it
         // to cfg_selectedLeagues would be self-referential.
         PlasmaComponents3.Label {
             id: leagueValue

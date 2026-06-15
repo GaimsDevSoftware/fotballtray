@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# FootballTray — uninstaller. Keeps your ~/.cache/fotballtray data unless you
+# FootballTray - uninstaller. Keeps your ~/.cache/fotballtray data unless you
 # pass --purge.
 set -uo pipefail
 

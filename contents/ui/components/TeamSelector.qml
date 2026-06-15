@@ -7,7 +7,7 @@ import org.kde.plasma.components as PlasmaComponents3
 ColumnLayout {
     id: selector
     property var allTeams: []
-    // NB: do NOT also declare `signal selectedTeamsChanged(...)` — the property
+    // NB: do NOT also declare `signal selectedTeamsChanged(...)` - the property
     // above auto-generates that signal; a manual declaration is a duplicate and
     // makes the whole type fail to compile ("Type TeamSelector unavailable").
     property string selectedTeams: ""

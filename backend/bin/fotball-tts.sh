@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# fotball-tts.sh — speak the latest AI commentary in the chosen commentator's
+# fotball-tts.sh - speak the latest AI commentary in the chosen commentator's
 # voice + delivery. Reads text + event type from commentary.json, resolves the
 # ACTIVE commentator profile (voice, language, prosody), synthesises (Kokoro if
 # installed, else piper), then shapes the delivery: a GOAL/big moment is SHOUTED
-# — higher pitch, breathless pace, compressed + EQ-boosted in the human "shout"
-# band, and loud — while the run of play stays calm and measured.
+# - higher pitch, breathless pace, compressed + EQ-boosted in the human "shout"
+# band, and loud - while the run of play stays calm and measured.
 # usage: fotball-tts.sh <match_id> [pulse_device_name]
 set -uo pipefail
 
@@ -31,7 +31,7 @@ import sys, re
 t = sys.stdin.read()
 nums = r"(?:\d+|nil|nought|zero|one|two|three|four|five|six|seven|eight|nine|ten)"
 # digits/number-words joined by a hyphen/dash → space (handles "2-1", "two-nil", "2 – 1")
-t = re.sub(r"\b(%s)\s*[-‐‑‒–—]\s*(%s)\b" % (nums, nums),
+t = re.sub(r"\b(%s)\s*[-‐‑‒–-]\s*(%s)\b" % (nums, nums),
            r"\1 \2", t, flags=re.IGNORECASE)
 sys.stdout.write(t)
 ' 2>/dev/null || printf '%s' "$TEXT")
@@ -77,9 +77,9 @@ fi
 # Pitch is shifted via asetrate→aresample→atempo(1/pitch), which RAISES pitch
 # without the chipmunk/helium speed-up (the breathless pace already comes from
 # the synth SPEED). A shouted moment then adds the acoustics of real shouting:
-#   acompressor  — pins the dynamics up so it sits forward and "pushed"
-#   equalizer    — lifts the ~2.4 kHz vocal-effort band where a shout's strain lives
-#   volume+alimiter — loud, but clipping-safe
+#   acompressor  - pins the dynamics up so it sits forward and "pushed"
+#   equalizer    - lifts the ~2.4 kHz vocal-effort band where a shout's strain lives
+#   volume+alimiter - loud, but clipping-safe
 if [ "$ok" -eq 1 ] && command -v ffmpeg >/dev/null; then
     SR=$(ffprobe -v error -show_entries stream=sample_rate -of default=nk=1:nw=1 "$WAV" 2>/dev/null || echo 24000)
     SR2=$(python3 -c "print(int($SR*$PITCH))" 2>/dev/null || echo "$SR")

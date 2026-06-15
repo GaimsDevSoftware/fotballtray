@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 
 // Modern, unified stat row: [homeVal]  [home ▸◂ away split track]  [awayVal]
-// One track split proportionally — home fills from the left, away from the
+// One track split proportionally - home fills from the left, away from the
 // right. Colours are a single accent (home) vs a calm neutral (away) so every
 // row looks consistent regardless of the teams' kit colours; the leading side
 // is emphasised (full opacity + bold coloured value).

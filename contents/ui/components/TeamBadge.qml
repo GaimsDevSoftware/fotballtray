@@ -14,7 +14,7 @@ Item {
     readonly property string countryCode: isHome ? (matchObj.homeCountryCode || "") : (matchObj.awayCountryCode || "")
     readonly property string teamName: isHome ? (matchObj.homeTeam || "") : (matchObj.awayTeam || "")
 
-    // Soft drop shadow behind the badge silhouette — always on, replaces the
+    // Soft drop shadow behind the badge silhouette - always on, replaces the
     // old ring outline. Declared first → renders behind the content.
     DropShadow {
         anchors.fill: content
@@ -103,7 +103,7 @@ Item {
             visible: clubLogo.status === Image.Ready
         }
 
-        // Clipped club logo — OpacityMask for a crisp edge on fractional scaling
+        // Clipped club logo - OpacityMask for a crisp edge on fractional scaling
         OpacityMask {
             source: clubLogo
             maskSource: clubMask

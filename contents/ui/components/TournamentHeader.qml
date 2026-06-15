@@ -5,7 +5,7 @@ import "../Theme.js" as Theme
 
 // Slim, STATIC championship strip.
 // Research verdict (event-branding-glanceable-widgets-2026): kill the 170px
-// animated banner — mascot + orbs + pulsing logo + floating loops violate
+// animated banner - mascot + orbs + pulsing logo + floating loops violate
 // calm-tech and WCAG 2.2.2. The "championship mode" signal is the ACCENT colour
 // threaded through the UI, not a big illustration. Here: a ~2.6 gridUnit strip
 // with a small emblem, the name, and a year/host subtitle, plus one fade-in.
@@ -13,7 +13,7 @@ Item {
     id: header
     property var tournamentObj: ({})
     property bool active: tournamentObj && tournamentObj.themeActive
-    // "ON AIR" tally light (commentator on a live match) — laid out as a proper
+    // "ON AIR" tally light (commentator on a live match) - laid out as a proper
     // right item so it reserves space and never overlaps the tournament name.
     property bool onAir: false
     property color accentColor: Kirigami.Theme.highlightColor
@@ -37,7 +37,7 @@ Item {
         ? Theme.softAccent(tournamentObj.tournamentId || "default")
         : Kirigami.Theme.highlightColor
 
-    // One-shot fade-in when the theme activates — no ambient loops.
+    // One-shot fade-in when the theme activates - no ambient loops.
     opacity: 0
     onActiveChanged: opacity = active ? 1 : 0
     Component.onCompleted: if (active) opacity = 1
@@ -50,7 +50,7 @@ Item {
         color: Qt.rgba(header.accent.r, header.accent.g, header.accent.b, 0.10)
     }
 
-    // Thin accent edge on the left — the "championship" tell, understated.
+    // Thin accent edge on the left - the "championship" tell, understated.
     Rectangle {
         anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.left: parent.left
         width: 3; radius: 1.5
@@ -63,7 +63,7 @@ Item {
         anchors.rightMargin: Kirigami.Units.largeSpacing
         spacing: Kirigami.Units.largeSpacing
 
-        // Small static emblem — decode at the physical pixel size (× pixel ratio)
+        // Small static emblem - decode at the physical pixel size (× pixel ratio)
         // and mipmap so it's sharp on 4K / scaled displays.
         Image {
             source: header.logoUrl
@@ -99,7 +99,7 @@ Item {
             }
         }
 
-        // ON AIR tally light — its own column on the right, so the name elides
+        // ON AIR tally light - its own column on the right, so the name elides
         // before it; never covers the name, score or stats.
         Row {
             visible: header.onAir

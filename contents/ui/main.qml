@@ -30,16 +30,16 @@ PlasmoidItem {
     property int tickerSpeed: Plasmoid.configuration.tickerSpeed || 5
     property int maxVisibleMatches: Plasmoid.configuration.maxVisibleMatches || 10
 
-    // Style group 1 — RESULT + TIME (score, match minute, live dot, stripe).
+    // Style group 1 - RESULT + TIME (score, match minute, live dot, stripe).
     property color liveColor: Plasmoid.configuration.liveColor || Kirigami.Theme.positiveTextColor
     property bool liveOutline: Plasmoid.configuration.liveColorOutline === true
     property bool liveShadow: Plasmoid.configuration.liveColorShadow === true
-    // Style group 2 — TEAM NAME (home/away abbreviations), independent setup.
+    // Style group 2 - TEAM NAME (home/away abbreviations), independent setup.
     property color teamColor: Plasmoid.configuration.teamColor || Kirigami.Theme.textColor
     property bool teamOutline: Plasmoid.configuration.teamColorOutline === true
     property bool teamShadow: Plasmoid.configuration.teamColorShadow === true
 
-    // LLM commentator settings — applied to the systemd service when the user
+    // LLM commentator settings - applied to the systemd service when the user
     // presses "Apply" (config changes → these properties change → run helper).
     property bool   commentatorEnabled: Plasmoid.configuration.commentatorEnabled
     property string commentatorModel:   Plasmoid.configuration.commentatorModel || "gemma4:12b"
@@ -110,7 +110,7 @@ PlasmoidItem {
             onTriggered: root.loadAllData()
         },
         PlasmaCore.Action {
-            // Support page — shared GaimsDev PayPal across all our apps.
+            // Support page - shared GaimsDev PayPal across all our apps.
             text: "Support FootballTray…"
             icon.name: "emblem-favorite"
             onTriggered: llmCtl.run(llmHelper + " open-url "
@@ -140,7 +140,7 @@ PlasmoidItem {
     }
 
     // Runs the LLM control helper (enable/disable/set-model) on "Apply".
-    // run(cmd, cb) — cb is optional; called with trimmed stdout.
+    // run(cmd, cb) - cb is optional; called with trimmed stdout.
     Plasma5Support.DataSource {
         id: llmCtl
         engine: "executable"
@@ -183,7 +183,7 @@ PlasmoidItem {
         // Clickable action buttons. notify-send -A prints the activated action
         // name to stdout, captured by llmCtl's callback. (KDE has no command to
         // open a plasmoid's own config dialog from a notification, so "Don't
-        // show again" toggles the opt-out directly — same as the settings box.)
+        // show again" toggles the opt-out directly - same as the settings box.)
         var paypal = "https://paypal.me/gaimsdev?country.x=NO&locale.x=no_NO";
         var cmd = "notify-send --app-name=FootballTray -i futbol"
                 + " -A donate=" + JSON.stringify("Support development")
@@ -207,7 +207,7 @@ PlasmoidItem {
         }
         for (var i = 0; i < mediaDevices.audioOutputs.length; i++) {
             var dev = mediaDevices.audioOutputs[i];
-            // dev.id is a QByteArray — strict === against the saved JS string
+            // dev.id is a QByteArray - strict === against the saved JS string
             // never matches, so coerce both sides with String() (that bug made
             // every selection silently fall back to the default device).
             if (String(dev.id) === String(soundOutputDevice)
@@ -228,7 +228,7 @@ PlasmoidItem {
         llmCtl.run(playHelper + " " + file + " " + JSON.stringify(soundOutputDevice || ""));
     }
 
-    // Goal sound — uses the configured sound for followed vs other teams
+    // Goal sound - uses the configured sound for followed vs other teams
     // (previously this was hardcoded to pling.wav, ignoring the settings).
     function playGoalSound(isFollowed) {
         if (!Plasmoid.configuration.playSounds) return;

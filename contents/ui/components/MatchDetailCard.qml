@@ -17,12 +17,12 @@ Item {
 
     // User-configurable colour for live/result accents (score, minute, dot, tint).
     property color liveColor: Kirigami.Theme.positiveTextColor
-    // Active commentator style's accent — applied ONLY to the live-commentary
+    // Active commentator style's accent - applied ONLY to the live-commentary
     // marker, never to scores/teams (those keep the user's chosen colours).
     property color accentColor: liveColor
 
     // When the user disables animations system-wide, Kirigami durations collapse
-    // to ~1 — use that as a reduced-motion proxy (no direct QML media query).
+    // to ~1 - use that as a reduced-motion proxy (no direct QML media query).
     readonly property bool reduceMotion: Kirigami.Units.longDuration <= 1
 
     implicitHeight: mainColumn.implicitHeight + Kirigami.Units.smallSpacing * 2
@@ -291,7 +291,7 @@ Item {
             }
         }
 
-        // Match narrative + goal scorers — styled callout
+        // Match narrative + goal scorers - styled callout
         Rectangle {
             visible: summaryNarrative().length > 0
             Layout.fillWidth: true
@@ -538,7 +538,7 @@ Item {
                                         }
                                     }
 
-                                    // Surname only — clean and avoids overlap
+                                    // Surname only - clean and avoids overlap
                                     Text {
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         width: 78
@@ -679,7 +679,7 @@ Item {
                                         Layout.preferredWidth: 22; Layout.preferredHeight: 22
                                         Layout.alignment: Qt.AlignVCenter
 
-                                        // Goal — ball
+                                        // Goal - ball
                                         Text {
                                             anchors.centerIn: parent
                                             visible: evDelegate.isGoal
@@ -702,7 +702,7 @@ Item {
                                             color: "#e74c3c"; rotation: -8
                                             border.color: Qt.rgba(0, 0, 0, 0.28); border.width: 1
                                         }
-                                        // Substitution — in/out arrows
+                                        // Substitution - in/out arrows
                                         RowLayout {
                                             anchors.centerIn: parent
                                             visible: modelData.kind === "sub"
@@ -710,7 +710,7 @@ Item {
                                             Kirigami.Heading { text: "▲"; level: 6; font.pixelSize: 10; color: "#2ecc71" }
                                             Kirigami.Heading { text: "▼"; level: 6; font.pixelSize: 10; color: "#e74c3c" }
                                         }
-                                        // Penalty miss / other — neutral dot
+                                        // Penalty miss / other - neutral dot
                                         Rectangle {
                                             anchors.centerIn: parent
                                             visible: modelData.kind === "other" || modelData.kind === "penmiss"

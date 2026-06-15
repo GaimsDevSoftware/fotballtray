@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# fotball-play.sh — play a widget sound file on a chosen Pulse/PipeWire device.
+# fotball-play.sh - play a widget sound file on a chosen Pulse/PipeWire device.
 # QtMultimedia's MediaPlayer device-switching is unreliable on PipeWire, so the
 # widget routes sounds through here (paplay --device) for a reliable output.
 # usage: fotball-play.sh <soundfile|abspath> [pulse_device_name]

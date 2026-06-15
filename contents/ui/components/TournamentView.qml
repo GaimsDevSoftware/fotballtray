@@ -88,7 +88,7 @@ Item {
                 // content implicit width ≈ 0 for fillWidth-only children) → the
                 // whole table collapses to width 0 and all columns overlap at x=0.
                 width: groupsScroll.availableWidth
-                // Always 2 columns — popup is now wide enough for this
+                // Always 2 columns - popup is now wide enough for this
                 columns: 2
                 columnSpacing: Kirigami.Units.smallSpacing
                 rowSpacing: Kirigami.Units.smallSpacing

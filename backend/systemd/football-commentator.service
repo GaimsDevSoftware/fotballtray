@@ -1,5 +1,5 @@
 [Unit]
-Description=Football Live — Ollama live English commentary generator
+Description=Football Live - Ollama live English commentary generator
 After=network-online.target fotball-fetcher.service
 Wants=network-online.target
 

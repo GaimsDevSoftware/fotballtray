@@ -70,7 +70,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter
         }
 
-        // Team abbreviation — its own colour + outline (style group "Lagnavn").
+        // Team abbreviation - its own colour + outline (style group "Lagnavn").
         OutlinedLabel {
             text: activeMatch ? (activeMatch.homeAbbrev || activeMatch.homeTeam.substring(0,3).toUpperCase()) : ""
             level: 4; weight: Font.ExtraBold
@@ -94,7 +94,7 @@ Item {
 
             OutlinedLabel {
                 id: scoreTxt; anchors.centerIn: parent
-                text: activeMatch ? (activeMatch.homeScore + " – " + activeMatch.awayScore) : "—"
+                text: activeMatch ? (activeMatch.homeScore + " – " + activeMatch.awayScore) : "-"
                 level: 4; weight: Font.ExtraBold
                 // Result/time style group: own colour + own outline.
                 color: root.liveColor
@@ -103,7 +103,7 @@ Item {
             }
         }
 
-        // Away team abbreviation — same "Lagnavn" style group as the home one.
+        // Away team abbreviation - same "Lagnavn" style group as the home one.
         OutlinedLabel {
             text: activeMatch ? (activeMatch.awayAbbrev || activeMatch.awayTeam.substring(0,3).toUpperCase()) : ""
             level: 4; weight: Font.ExtraBold
@@ -121,7 +121,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter
         }
 
-        // Status / time — part of the result/time style group.
+        // Status / time - part of the result/time style group.
         OutlinedLabel {
             text: activeMatch ? trayStatus(activeMatch) : ""
             level: 5; bold: false
