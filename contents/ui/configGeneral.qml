@@ -211,11 +211,32 @@ KCM.SimpleKCM {
         cfg_selectedLeagues = parts.join(", ");
     }
 
-    Kirigami.FormLayout {
+    ColumnLayout {
         width: parent.width
-        // NB: Kirigami.FormLayout has NO `spacing` property — assigning it made
-        // the WHOLE config page fail to load ("Cannot assign to non-existent
-        // property spacing"). FormLayout manages its own row spacing.
+        spacing: Kirigami.Units.largeSpacing
+
+        // ── Category tabs (Tactics Board) ──────────────────────────────────
+        TabBar {
+            id: catTabs
+            Layout.fillWidth: true
+            Layout.bottomMargin: Kirigami.Units.smallSpacing
+            TabButton { text: "Follow";     icon.name: "favorite" }
+            TabButton { text: "Appearance"; icon.name: "color-management" }
+            TabButton { text: "Sound";      icon.name: "audio-volume-high" }
+            TabButton { text: "Commentary"; icon.name: "text-speak" }
+            TabButton { text: "General";    icon.name: "configure" }
+        }
+
+        StackLayout {
+            Layout.fillWidth: true
+            // Tab order (Follow, Appearance, Sound, Commentary, General) maps to
+            // the FormLayouts below, whose source order is General-first; remap so
+            // "Follow" (the last FormLayout) shows first.
+            currentIndex: [4, 1, 2, 3, 0][catTabs.currentIndex]
+
+            // ===== FormLayout 0: General =====
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
 
         Kirigami.Heading {
             Kirigami.FormData.isSection: true
@@ -265,6 +286,12 @@ KCM.SimpleKCM {
                 from: 1; to: 50
             }
         }
+
+            } // ===== end FormLayout 0 (General) =====
+
+            // ===== FormLayout 1: Appearance + System tray =====
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
 
         Kirigami.Heading {
             Kirigami.FormData.isSection: true
@@ -546,6 +573,12 @@ KCM.SimpleKCM {
             }
         }
 
+            } // ===== end FormLayout 1 (Appearance + System tray) =====
+
+            // ===== FormLayout 2: Sound =====
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
+
         Kirigami.Heading {
             Kirigami.FormData.isSection: true
             text: "Sound alerts"
@@ -659,6 +692,12 @@ KCM.SimpleKCM {
                 }
             }
         }
+
+            } // ===== end FormLayout 2 (Sound) =====
+
+            // ===== FormLayout 3: Commentary =====
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
 
         // ── Live commentary (AI / LLM) ─────────────────────────────────────
         Kirigami.Heading {
@@ -868,6 +907,12 @@ KCM.SimpleKCM {
             Layout.maximumWidth: Kirigami.Units.gridUnit * 24
         }
 
+            } // ===== end FormLayout 3 (Commentary) =====
+
+            // ===== FormLayout 4: Follow (teams + leagues) =====
+            Kirigami.FormLayout {
+                Layout.fillWidth: true
+
         Kirigami.Heading {
             Kirigami.FormData.isSection: true
             text: "Favourite teams"
@@ -964,5 +1009,8 @@ KCM.SimpleKCM {
             id: leagueValue
             visible: false
         }
-    }
+
+            } // ===== end FormLayout 4 (Follow) =====
+        } // ===== end StackLayout =====
+    } // ===== end ColumnLayout =====
 }
