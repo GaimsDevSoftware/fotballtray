@@ -23,6 +23,19 @@ TYPE=$(python3 -c "import json;print((json.load(open('$CACHE/commentary.json')).
 [ -z "$TEXT" ] && exit 0
 [ -z "$TYPE" ] && TYPE=general
 
+# Normalise the text FOR SPEECH ONLY (the on-screen text keeps "2-1"). A scoreline
+# like "2-1" / "2 – 1" is otherwise read as "two DASH one"; turn the dash between
+# two numbers (digits or number-words) into a spoken space → "two one".
+TEXT=$(printf '%s' "$TEXT" | python3 -c '
+import sys, re
+t = sys.stdin.read()
+nums = r"(?:\d+|nil|nought|zero|one|two|three|four|five|six|seven|eight|nine|ten)"
+# digits/number-words joined by a hyphen/dash → space (handles "2-1", "two-nil", "2 – 1")
+t = re.sub(r"\b(%s)\s*[-‐‑‒–—]\s*(%s)\b" % (nums, nums),
+           r"\1 \2", t, flags=re.IGNORECASE)
+sys.stdout.write(t)
+' 2>/dev/null || printf '%s' "$TEXT")
+
 # ── Resolve the active profile → voice, language, and per-event prosody ─────────
 # Emits: VOICE LANG SPEED PITCH GAIN SHOUT  (space separated). Falls back to a
 # sensible British default if the profile file is missing.
