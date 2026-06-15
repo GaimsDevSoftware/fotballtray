@@ -110,10 +110,11 @@ PlasmoidItem {
             onTriggered: root.loadAllData()
         },
         PlasmaCore.Action {
+            // Support page — PayPal (shared with the developer's other apps).
             text: "Support FootballTray…"
             icon.name: "emblem-favorite"
             onTriggered: llmCtl.run(llmHelper + " open-url "
-                                    + JSON.stringify("https://ko-fi.com/gaimsdev"))
+                                    + JSON.stringify("https://paypal.me/linuxpop"))
         }
     ]
 
