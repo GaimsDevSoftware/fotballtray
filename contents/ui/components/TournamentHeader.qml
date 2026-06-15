@@ -13,6 +13,10 @@ Item {
     id: header
     property var tournamentObj: ({})
     property bool active: tournamentObj && tournamentObj.themeActive
+    // "ON AIR" tally light (commentator on a live match) — laid out as a proper
+    // right item so it reserves space and never overlaps the tournament name.
+    property bool onAir: false
+    property color accentColor: Kirigami.Theme.highlightColor
 
     implicitHeight: active ? Kirigami.Units.gridUnit * 2.6 : 0
     implicitWidth: parent ? parent.width : 300
@@ -92,6 +96,30 @@ Item {
                 color: Kirigami.Theme.disabledTextColor
                 Layout.fillWidth: true
                 elide: Text.ElideRight
+            }
+        }
+
+        // ON AIR tally light — its own column on the right, so the name elides
+        // before it; never covers the name, score or stats.
+        Row {
+            visible: header.onAir
+            spacing: 6
+            Layout.alignment: Qt.AlignVCenter
+            Rectangle {
+                width: 9; height: 9; radius: 4.5
+                anchors.verticalCenter: parent.verticalCenter
+                color: header.accentColor
+                SequentialAnimation on opacity {
+                    loops: Animation.Infinite; running: header.onAir
+                    NumberAnimation { from: 1.0; to: 0.3; duration: 800; easing.type: Easing.InOutSine }
+                    NumberAnimation { from: 0.3; to: 1.0; duration: 800; easing.type: Easing.InOutSine }
+                }
+            }
+            Kirigami.Heading {
+                text: "ON AIR"
+                level: 6; font.pixelSize: 9; font.bold: true
+                color: header.accentColor
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
     }
