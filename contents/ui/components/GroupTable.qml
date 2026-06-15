@@ -16,7 +16,11 @@ Rectangle {
     property var theme: ({ primary: "#4CAF50", secondary: "#1a237e" })
 
     readonly property int rowHeight: Kirigami.Units.gridUnit * 1.7
-    readonly property int headerHeight: Kirigami.Units.gridUnit * 1.5
+    readonly property int headerHeight: Kirigami.Units.gridUnit * 2.1
+
+    // Brand sky-blue used for the group badge (matches the panel + store design).
+    readonly property color badgeColor: (theme && theme.special && theme.primary)
+        ? theme.primary : "#2E9BF0"
 
     // Fixed numeric column widths (kept tight so the name gets the most room).
     readonly property int wPos:  Kirigami.Units.gridUnit * 1.3
@@ -34,7 +38,7 @@ Rectangle {
     border.width: 1
 
     Layout.fillWidth: true
-    Layout.preferredHeight: headerHeight + rowHeight * (teams.length + 1) + Kirigami.Units.smallSpacing * 2
+    Layout.preferredHeight: headerHeight + rowHeight * (teams.length + 1) + Kirigami.Units.smallSpacing * 4 + 1
 
     function gdText(t) {
         var v = (t && t.gd !== undefined) ? Number(t.gd) : (Number(t.gf||0) - Number(t.ga||0));
@@ -46,23 +50,64 @@ Rectangle {
         anchors.margins: Kirigami.Units.smallSpacing
         spacing: 0
 
-        // Group label
+        // Group header — sky-blue badge + small "GROUP" label + bold name.
         RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: headerHeight
-            spacing: Kirigami.Units.smallSpacing
+            spacing: Kirigami.Units.largeSpacing
 
+            // Rounded badge carrying the group letter
             Rectangle {
-                width: 3; height: headerHeight * 0.55; radius: 1.5
-                color: groupCard.qualColor
+                Layout.preferredWidth: headerHeight * 0.78
+                Layout.preferredHeight: headerHeight * 0.78
+                Layout.alignment: Qt.AlignVCenter
+                radius: width * 0.28
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: Qt.lighter(groupCard.badgeColor, 1.12) }
+                    GradientStop { position: 1.0; color: Qt.darker(groupCard.badgeColor, 1.15) }
+                }
+                Kirigami.Heading {
+                    anchors.centerIn: parent
+                    text: groupCard.groupName
+                    level: 3; font.bold: true
+                    color: "white"
+                    renderType: Text.NativeRendering
+                }
+            }
+
+            // "GROUP" caption stacked over the bold group name
+            ColumnLayout {
+                spacing: -2
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+                PlasmaComponents3.Label {
+                    text: "GROUP"
+                    font.pixelSize: 9; font.bold: true; font.letterSpacing: 2
+                    color: Kirigami.Theme.disabledTextColor
+                }
+                Kirigami.Heading {
+                    text: "Group " + groupCard.groupName
+                    level: 4; font.bold: true
+                    color: Kirigami.Theme.textColor
+                }
+            }
+
+            // Team count, right-aligned
+            PlasmaComponents3.Label {
+                text: groupCard.teams.length + " teams"
+                font.pixelSize: 10
+                color: Kirigami.Theme.disabledTextColor
                 Layout.alignment: Qt.AlignVCenter
             }
-            Kirigami.Heading {
-                text: "Group " + groupName
-                level: 5; font.bold: true
-                color: Kirigami.Theme.textColor
-                Layout.fillWidth: true
-            }
+        }
+
+        // Hairline divider under the header
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 1
+            Layout.topMargin: Kirigami.Units.smallSpacing * 0.5
+            Layout.bottomMargin: Kirigami.Units.smallSpacing * 0.5
+            color: Qt.rgba(Kirigami.Theme.textColor.r, Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.10)
         }
 
         // Column header
