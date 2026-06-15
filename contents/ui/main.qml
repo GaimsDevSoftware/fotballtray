@@ -115,6 +115,13 @@ PlasmoidItem {
             icon.name: "emblem-favorite"
             onTriggered: llmCtl.run(llmHelper + " open-url "
                                     + JSON.stringify("https://paypal.me/gaimsdev?country.x=NO&locale.x=no_NO"))
+        },
+        PlasmaCore.Action {
+            // Contact / report an issue on GitHub.
+            text: "Contact on GitHub…"
+            icon.name: "tools-report-bug"
+            onTriggered: llmCtl.run(llmHelper + " open-url "
+                                    + JSON.stringify("https://github.com/GaimsDevSoftware/fotballtray/issues"))
         }
     ]
 
@@ -157,6 +164,39 @@ PlasmoidItem {
         });
     }
     onExpandedChanged: if (expanded) refreshCommentatorAccent()
+
+    // Gentle, capped "support development" reminder: at most 3 times over the
+    // widget's lifetime (≈ day 7 / 30 / 90 after first run), via notify-send.
+    // Never on first run. State persists in donateFirstSeen / donateRemindCount.
+    function maybeRemindDonate() {
+        if (Plasmoid.configuration.donateRemindOptOut) return;   // user opted out
+        var now = Math.floor(Date.now() / 1000);
+        var firstSeen = Plasmoid.configuration.donateFirstSeen || 0;
+        if (firstSeen === 0) { Plasmoid.configuration.donateFirstSeen = now; return; }
+        var count = Plasmoid.configuration.donateRemindCount || 0;
+        if (count >= 3) return;
+        var thresholds = [7, 30, 90];
+        if ((now - firstSeen) / 86400 < thresholds[count]) return;
+        Plasmoid.configuration.donateRemindCount = count + 1;
+        var title = "Enjoying FootballTray?";
+        var body = "Months of work went into it. If it helps, you can support development.";
+        // Clickable action buttons. notify-send -A prints the activated action
+        // name to stdout, captured by llmCtl's callback. (KDE has no command to
+        // open a plasmoid's own config dialog from a notification, so "Don't
+        // show again" toggles the opt-out directly — same as the settings box.)
+        var paypal = "https://paypal.me/gaimsdev?country.x=NO&locale.x=no_NO";
+        var cmd = "notify-send --app-name=FootballTray -i futbol"
+                + " -A donate=" + JSON.stringify("Support development")
+                + " -A optout=" + JSON.stringify("Don't show again")
+                + " " + JSON.stringify(title) + " " + JSON.stringify(body);
+        llmCtl.run(cmd, function(out) {
+            var a = (out || "").trim();
+            if (a === "donate")
+                llmCtl.run(llmHelper + " open-url " + JSON.stringify(paypal));
+            else if (a === "optout")
+                Plasmoid.configuration.donateRemindOptOut = true;
+        });
+    }
 
     onSoundOutputDeviceChanged: updateAudioDevice()
 
@@ -228,6 +268,7 @@ PlasmoidItem {
     Component.onCompleted: {
         loadAllData();
         refreshCommentatorAccent();
+        maybeRemindDonate();
     }
 
     property var lastGoalCounts: ({})
