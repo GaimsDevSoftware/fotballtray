@@ -75,10 +75,28 @@ Hard rules:
 """
 
 EVENT_PROMPTS = {
-    "goal":     "GOAL! Erupt — call this goal like a great British TV commentator:\n",
+    "goal":     "GOAL! Erupt — call this goal like a great commentator:\n",
     "owngoal":  "OWN GOAL! Call it dramatically but with a touch of sympathy:\n",
-    "redcard":  "RED CARD! A dramatic, theatrical British-commentary line:\n",
+    "redcard":  "RED CARD! A dramatic, theatrical commentary line:\n",
 }
+
+# ── Commentator profile (style/language plugin) ────────────────────────────────
+# The active profile is a JSON file under ~/.local/share/fotballtray/commentators/
+# selected by id in ~/.cache/fotballtray/commentator-profile. Each profile supplies
+# its own systemPrompt (and language/voice, the latter used by the TTS helper).
+_DEFAULT_SYSTEM_PROMPT = SYSTEM_PROMPT
+PROFILES_DIR = Path.home() / ".local" / "share" / "fotballtray" / "commentators"
+PROFILE_FILE = CACHE_DIR / "commentator-profile"
+
+def refresh_profile() -> None:
+    """Reload SYSTEM_PROMPT from the active commentator profile (hot-swappable)."""
+    global SYSTEM_PROMPT
+    try:
+        pid = PROFILE_FILE.read_text().strip() or "british"
+        prof = json.loads((PROFILES_DIR / f"{pid}.json").read_text())
+        SYSTEM_PROMPT = prof.get("systemPrompt") or _DEFAULT_SYSTEM_PROMPT
+    except Exception:
+        SYSTEM_PROMPT = _DEFAULT_SYSTEM_PROMPT
 
 # Occasional "run of play" commentary (not tied to an event), every few minutes.
 GENERAL_INTERVAL = 900  # 15 min of QUIET (no events) → a run-of-play comment
@@ -440,6 +458,7 @@ def main() -> None:
 
     while True:
         try:
+            refresh_profile()   # hot-swap commentator style/language
             if not backend_ready():
                 if not warned:
                     if LLM_BACKEND == "openai":

@@ -56,6 +56,9 @@ KCM.SimpleKCM {
     property string llmBackend:   "ollama"
     property string llmCloudBase:  ""
     property string llmCloudModel: ""
+    // Commentator style profiles (plugin system).
+    property var    llmStyles: []
+    property string llmStyle:  "british"
 
     Plasma5Support.DataSource {
         id: llmExec
@@ -91,10 +94,24 @@ KCM.SimpleKCM {
                 llmBackend   = s.backend || "ollama";
                 llmCloudBase  = s.cloudBase  || "";
                 llmCloudModel = s.cloudModel || "";
+                llmStyle      = s.style || "british";
             } catch (e) {
                 llmOutput = "Could not read LLM status (is the helper installed?)";
             }
         });
+    }
+
+    // Load the installed commentator style profiles.
+    function loadStyles() {
+        llmExec.exec(llmHelper + " list-styles", function(out) {
+            try { llmStyles = JSON.parse(out) || []; } catch (e) { llmStyles = []; }
+        });
+    }
+
+    // Switch the active commentator style (applies immediately).
+    function setStyle(id) {
+        if (!id || id === llmStyle) return;
+        llmAction("set-style " + id, "Switching commentator style…");
     }
 
     // Open a provider's free-key signup page in the browser. Routed through the
@@ -170,6 +187,7 @@ KCM.SimpleKCM {
         loadTeams();
         loadLeagues();
         llmRefresh();
+        loadStyles();
     }
 
     function loadTeams() {
@@ -721,6 +739,28 @@ KCM.SimpleKCM {
             Layout.maximumWidth: Kirigami.Units.gridUnit * 22
         }
 
+        // ── Commentator style (plugin profiles) ────────────────────────────
+        RowLayout {
+            Kirigami.FormData.label: "Style:"
+            spacing: Kirigami.Units.smallSpacing
+            PlasmaComponents3.ComboBox {
+                id: styleCombo
+                Layout.preferredWidth: Kirigami.Units.gridUnit * 14
+                model: root.llmStyles
+                textRole: "name"; valueRole: "id"
+                // Keep selection synced with the active style from status.
+                function syncIndex() { currentIndex = Math.max(0, indexOfValue(root.llmStyle)); }
+                onModelChanged: syncIndex()
+                Connections { target: root; function onLlmStyleChanged() { styleCombo.syncIndex() } }
+                onActivated: root.setStyle(currentValue)
+            }
+            PlasmaComponents3.Label {
+                visible: styleCombo.currentIndex >= 0 && root.llmStyles.length > 0
+                text: (root.llmStyles[styleCombo.currentIndex] || {}).language || ""
+                color: Kirigami.Theme.disabledTextColor
+            }
+        }
+
         // Status indicators
         RowLayout {
             Kirigami.FormData.label: "Status:"
@@ -819,6 +859,22 @@ KCM.SimpleKCM {
                     model: ["auto"]
                     Component.onCompleted: editText = (root.llmCloudModel || "auto")
                 }
+            }
+
+            // Confirmation that a working key is already saved (small green italic).
+            PlasmaComponents3.Label {
+                visible: root.llmBackend === "cloud" && root.llmCloudBase !== ""
+                text: {
+                    var host = root.llmCloudBase.replace(/^https?:\/\//, "").split("/")[0];
+                    return "✓ A working key is saved — " + host
+                         + (root.llmCloudModel ? " · " + root.llmCloudModel : "")
+                         + ". Paste a new key only to replace it.";
+                }
+                color: Kirigami.Theme.positiveTextColor
+                font.italic: true
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                wrapMode: Text.WordWrap; Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 24
             }
 
             RowLayout {

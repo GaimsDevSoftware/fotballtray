@@ -12,11 +12,16 @@ if not text:
     sys.exit(0)
 
 home = os.path.expanduser("~/.local/share/kokoro")
-voice = os.environ.get("KOKORO_VOICE", "bm_george")  # British male
+voice = os.environ.get("KOKORO_VOICE", "bm_george")   # commentator voice
+lang  = os.environ.get("KOKORO_LANG", "en-gb")        # en-gb / en-us / es / fr / …
 
 from kokoro_onnx import Kokoro
 import soundfile as sf
 
 k = Kokoro(os.path.join(home, "kokoro-v1.0.onnx"), os.path.join(home, "voices-v1.0.bin"))
-samples, sr = k.create(text, voice=voice, speed=speed, lang="en-gb")
+try:
+    samples, sr = k.create(text, voice=voice, speed=speed, lang=lang)
+except Exception:
+    # Unknown voice/lang → fall back to the British default.
+    samples, sr = k.create(text, voice="bm_george", speed=speed, lang="en-gb")
 sf.write(out, samples, sr)

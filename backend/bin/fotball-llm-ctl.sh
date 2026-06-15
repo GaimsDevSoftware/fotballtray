@@ -37,6 +37,11 @@ provider_keyurl() {
 
 cloud_active() { [ -f "$CLOUD_CONF" ]; }
 
+# Commentator style/language profiles (the "plugin" system).
+PROFILES_DIR="$HOME/.local/share/fotballtray/commentators"
+PROFILE_FILE="$HOME/.cache/fotballtray/commentator-profile"
+active_style() { cat "$PROFILE_FILE" 2>/dev/null || echo british; }
+
 have_ollama()    { command -v ollama >/dev/null 2>&1; }
 ollama_running() { curl -s --max-time 3 "$OLLAMA_URL/api/tags" >/dev/null 2>&1; }
 
@@ -75,12 +80,36 @@ case "${1:-status}" in
             CB=$(grep -oP 'LLM_API_BASE=\K\S+' "$CLOUD_CONF" 2>/dev/null | tail -1)
             CM=$(grep -oP 'LLM_MODEL=\K\S+'    "$CLOUD_CONF" 2>/dev/null | tail -1)
         fi
-        printf '{"backend":"%s","cloudBase":"%s","cloudModel":"%s","ollamaInstalled":%s,"ollamaRunning":%s,"model":"%s","modelInstalled":%s,"serviceActive":%s,"serviceEnabled":%s,"models":"%s"}\n' \
-            "$BACKEND" "$CB" "$CM" "$OI" "$OR" "$M" "$MI" "$SA" "$SE" "$MODELS"
+        printf '{"backend":"%s","cloudBase":"%s","cloudModel":"%s","style":"%s","ollamaInstalled":%s,"ollamaRunning":%s,"model":"%s","modelInstalled":%s,"serviceActive":%s,"serviceEnabled":%s,"models":"%s"}\n' \
+            "$BACKEND" "$CB" "$CM" "$(active_style)" "$OI" "$OR" "$M" "$MI" "$SA" "$SE" "$MODELS"
         ;;
     key-url)
         # Print the signup URL for a provider's free key (for the settings "Get key" button).
         provider_keyurl "${2:-openrouter}"
+        ;;
+    list-styles)
+        # JSON array of installed commentator profiles: [{id,name,language}, …]
+        PROFILES_DIR="$PROFILES_DIR" python3 - <<'PY'
+import json, os, glob
+d = os.environ["PROFILES_DIR"]; out = []
+for f in sorted(glob.glob(os.path.join(d, "*.json"))):
+    try:
+        p = json.load(open(f))
+        out.append({"id": p.get("id", os.path.splitext(os.path.basename(f))[0]),
+                    "name": p.get("name", "?"), "language": p.get("language", "")})
+    except Exception:
+        pass
+print(json.dumps(out))
+PY
+        ;;
+    set-style)
+        ID="${2:?style id required}"
+        if [ ! -f "$PROFILES_DIR/$ID.json" ]; then echo "FAILED: no such style '$ID'."; exit 1; fi
+        mkdir -p "$(dirname "$PROFILE_FILE")"
+        printf '%s' "$ID" > "$PROFILE_FILE"
+        # The commentator reloads the profile every cycle; restart only to apply now.
+        systemctl --user is-active --quiet "$SERVICE" && systemctl --user restart "$SERVICE" || true
+        echo "DONE: commentator style set to '$ID'."
         ;;
     open-key)
         # Open the provider's free-key signup page in the user's browser.

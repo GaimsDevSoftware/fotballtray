@@ -18,11 +18,18 @@ if ! python3 -c 'import requests' 2>/dev/null; then
 fi
 
 # ── 2. Backend scripts + data server ───────────────────────────────────────────
-mkdir -p "$HOME/.local/bin" "$HOME/.cache/fotballtray" "$HOME/.config/systemd/user"
+mkdir -p "$HOME/.local/bin" "$HOME/.cache/fotballtray" "$HOME/.config/systemd/user" \
+         "$HOME/.local/share/fotballtray/commentators"
 install -m 755 "$HERE"/backend/bin/*           "$HOME/.local/bin/"
 install -m 755 "$HERE"/backend/server/httpserver.py "$HOME/.cache/fotballtray/"
 cp "$HERE"/backend/systemd/*.service           "$HOME/.config/systemd/user/"
-echo "✓ Backend installed to ~/.local/bin and ~/.cache/fotballtray"
+# Commentator style profiles (don't clobber user-made ones).
+for p in "$HERE"/commentators/*.json; do
+    [ -e "$p" ] || continue
+    dest="$HOME/.local/share/fotballtray/commentators/$(basename "$p")"
+    [ -f "$dest" ] || cp "$p" "$dest"
+done
+echo "✓ Backend + commentator styles installed"
 
 # ── 3. The plasmoid ─────────────────────────────────────────────────────────────
 if kpackagetool6 --type Plasma/Applet --list 2>/dev/null | grep -q "org.kde.fotballtray"; then
