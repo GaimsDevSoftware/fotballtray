@@ -17,6 +17,11 @@
         <entry name="playSounds" type="Bool">
             <default>true</default>
         </entry>
+        <!-- First-run animated onboarding. Set to true once the user finishes
+             or skips the tour; the settings has a "replay" toggle. -->
+        <entry name="onboardingDone" type="Bool">
+            <default>false</default>
+        </entry>
         <entry name="notificationSound" type="String">
             <default>pling.wav</default>
         </entry>

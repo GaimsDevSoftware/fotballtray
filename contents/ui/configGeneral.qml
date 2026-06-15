@@ -13,6 +13,7 @@ import "components"
 KCM.SimpleKCM {
     id: root
 
+    property alias cfg_onboardingDone: onboardingDoneCheck.checked
     property alias cfg_refreshInterval: refreshSpin.value
     property alias cfg_followedTeams: teamSelector.selectedTeams
     property alias cfg_selectedLeagues: leagueValue.text
@@ -220,6 +221,27 @@ KCM.SimpleKCM {
             Kirigami.FormData.isSection: true
             text: "General"
             level: 3
+        }
+
+        // Hidden control backing cfg_onboardingDone (the welcome-tour flag).
+        PlasmaComponents3.CheckBox { id: onboardingDoneCheck; visible: false }
+
+        // Replay the first-run welcome tour.
+        RowLayout {
+            Kirigami.FormData.label: "Welcome tour:"
+            spacing: Kirigami.Units.smallSpacing
+            PlasmaComponents3.Button {
+                text: "Replay welcome tour"
+                icon.name: "help-hint"
+                enabled: onboardingDoneCheck.checked
+                onClicked: onboardingDoneCheck.checked = false
+            }
+            PlasmaComponents3.Label {
+                text: onboardingDoneCheck.checked
+                    ? "Shows next time you open the popup (after Apply)."
+                    : "Will show next time you open the popup."
+                color: Kirigami.Theme.disabledTextColor
+            }
         }
 
         RowLayout {

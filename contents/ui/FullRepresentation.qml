@@ -172,4 +172,19 @@ Item {
             theme: fullRep.theme
         }
     }
+
+    // ── First-run animated onboarding ──────────────────────────────────────
+    Loader {
+        anchors.fill: parent
+        active: !Plasmoid.configuration.onboardingDone
+        sourceComponent: OnboardingOverlay {
+            accent: root.liveColor
+            onFinished: Plasmoid.configuration.onboardingDone = true
+            onOpenSettings: {
+                Plasmoid.configuration.onboardingDone = true;
+                var a = Plasmoid.internalAction("configure");
+                if (a) a.trigger();
+            }
+        }
+    }
 }
