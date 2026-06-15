@@ -97,10 +97,17 @@ KCM.SimpleKCM {
         });
     }
 
-    // Open a provider's free-key signup page in the default browser.
+    // Open a provider's free-key signup page in the browser. Routed through the
+    // helper's `open-key` (xdg-open) because Qt.openUrlExternally is unreliable
+    // inside the Plasma config dialog.
     function llmOpenKeyPage(provider) {
-        llmExec.exec(llmHelper + " key-url " + provider, function(url) {
-            if (url && url.indexOf("http") === 0) Qt.openUrlExternally(url);
+        llmOutput = "Opening the sign-up page…";
+        llmExec.exec(llmHelper + " open-key " + provider, function(out) {
+            if (out && out.indexOf("http") === 0) {
+                llmOutput = "Opened " + out + " in your browser.";
+            } else {
+                llmOutput = "Could not open a browser automatically — visit the provider's key page manually.";
+            }
         });
     }
 
