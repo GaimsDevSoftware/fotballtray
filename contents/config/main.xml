@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+    <kcfgfile name=""/>
+    <group name="General">
+        <entry name="refreshInterval" type="Int">
+            <default>30</default>
+        </entry>
+        <entry name="followedTeams" type="String">
+            <default></default>
+        </entry>
+        <entry name="selectedLeagues" type="String">
+            <default>FIFA.WORLD</default>
+        </entry>
+        <entry name="playSounds" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="notificationSound" type="String">
+            <default>pling.wav</default>
+        </entry>
+        <entry name="soundFollowed" type="String">
+            <default>cheer.wav</default>
+        </entry>
+        <entry name="soundOther" type="String">
+            <default>pling.wav</default>
+        </entry>
+        <entry name="soundRedCard" type="String">
+            <default>whistle_match.wav</default>
+        </entry>
+        <!-- Calm-tech: only own-team goal cheers are on by default. Event sounds
+             (red card, …) are opt-in so the widget never blares uninvited. -->
+        <entry name="playEventSounds" type="Bool">
+            <default>false</default>
+        </entry>
+        <entry name="soundOutputDevice" type="String">
+            <default></default>
+        </entry>
+        <entry name="trayDisplayMode" type="String">
+            <default>flagText</default>
+        </entry>
+        <entry name="tickerDisplayMode" type="String">
+            <default>flagText</default>
+        </entry>
+        <entry name="tickerMatchCount" type="Int">
+            <default>3</default>
+        </entry>
+        <entry name="tickerSpeed" type="Int">
+            <default>5</default>
+        </entry>
+        <entry name="maxVisibleMatches" type="Int">
+            <default>10</default>
+        </entry>
+        <!-- ── Style group 1: RESULT + TIME (score, match minute, live dot,
+             qualification stripe). Defaults to a calm green. -->
+        <entry name="liveColor" type="Color">
+            <default>#2ecc71</default>
+        </entry>
+        <!-- Crisp outline around the result/time text for panel contrast. -->
+        <entry name="liveColorOutline" type="Bool">
+            <default>false</default>
+        </entry>
+        <!-- Drop shadow behind the result/time text (subtle depth on the panel). -->
+        <entry name="liveColorShadow" type="Bool">
+            <default>false</default>
+        </entry>
+        <!-- ── Style group 2: TEAM NAME (the home/away abbreviations). Its own
+             colour and outline, independent of the result/time group. -->
+        <entry name="teamColor" type="Color">
+            <default>#ffffff</default>
+        </entry>
+        <entry name="teamColorOutline" type="Bool">
+            <default>true</default>
+        </entry>
+        <!-- Drop shadow behind the team name (subtle depth on the panel). -->
+        <entry name="teamColorShadow" type="Bool">
+            <default>false</default>
+        </entry>
+        <!-- ── Live LLM commentary (applied via fotball-llm-ctl.sh on Apply). -->
+        <entry name="commentatorEnabled" type="Bool">
+            <default>true</default>
+        </entry>
+        <entry name="commentatorModel" type="String">
+            <default>gemma4:12b</default>
+        </entry>
+        <!-- How live commentary is presented: both | sound | text -->
+        <entry name="commentaryMode" type="String">
+            <default>both</default>
+        </entry>
+    </group>
+</kcfg>
