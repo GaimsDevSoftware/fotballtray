@@ -59,6 +59,8 @@ KCM.SimpleKCM {
     // Commentator style profiles (plugin system).
     property var    llmStyles: []
     property string llmStyle:  "british"
+    // Selectable cloud models for the current provider ("auto" + fetched ids).
+    property var    cloudModelList: ["auto"]
 
     Plasma5Support.DataSource {
         id: llmExec
@@ -112,6 +114,19 @@ KCM.SimpleKCM {
     function setStyle(id) {
         if (!id || id === llmStyle) return;
         llmAction("set-style " + id, "Switching commentator style…");
+    }
+
+    // Fetch the selectable models for the chosen provider (uses the pasted key,
+    // or the already-saved key if the field is empty). Keeps "auto" on top.
+    function loadCloudModels() {
+        var prov = cloudProviderCombo.currentValue;
+        var key  = cloudKeyField.text || "";
+        llmExec.exec(llmHelper + " list-models " + JSON.stringify(prov) + " " + JSON.stringify(key),
+            function(out) {
+                var ids = [];
+                try { ids = JSON.parse(out) || []; } catch (e) { ids = []; }
+                root.cloudModelList = ["auto"].concat(ids);
+            });
     }
 
     // Open a provider's free-key signup page in the browser. Routed through the
@@ -816,6 +831,8 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: "Cloud provider:"
             visible: backendCloud.checked
             spacing: Kirigami.Units.smallSpacing
+            // When this section first appears with a saved key, load its models.
+            onVisibleChanged: if (visible && root.llmBackend === "cloud") root.loadCloudModels()
 
             RowLayout {
                 spacing: Kirigami.Units.smallSpacing
@@ -829,6 +846,8 @@ KCM.SimpleKCM {
                         { text: "Google Gemini (free)", value: "gemini" },
                         { text: "OpenCode Zen",      value: "zen" }
                     ]
+                    // Switching provider refreshes the model list.
+                    onActivated: root.loadCloudModels()
                 }
                 PlasmaComponents3.Button {
                     text: "Get free key ↗"
@@ -851,13 +870,22 @@ KCM.SimpleKCM {
                     Layout.preferredWidth: Kirigami.Units.gridUnit * 16
                     placeholderText: "Paste API key (e.g. sk-or-…)"
                     echoMode: TextInput.Password
+                    // When a key is entered, fetch that provider's models.
+                    onEditingFinished: if (text.length > 0) root.loadCloudModels()
                 }
                 PlasmaComponents3.ComboBox {
                     id: cloudModelField
                     editable: true
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 9
-                    model: ["auto"]
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 15
+                    model: root.cloudModelList
                     Component.onCompleted: editText = (root.llmCloudModel || "auto")
+                }
+                PlasmaComponents3.Button {
+                    icon.name: "view-refresh"
+                    display: PlasmaComponents3.AbstractButton.IconOnly
+                    PlasmaComponents3.ToolTip.text: "Load this provider's models"
+                    PlasmaComponents3.ToolTip.visible: hovered
+                    onClicked: root.loadCloudModels()
                 }
             }
 

@@ -147,6 +147,29 @@ PY
         case "$URL" in http://*|https://*) ;; *) echo "FAILED: refusing non-http URL."; exit 1 ;; esac
         browser_open "$URL" && echo "$URL" || { echo "FAILED: no way to open a browser."; exit 1; }
         ;;
+    list-models)
+        # list-models <provider|baseurl> [apikey]
+        # JSON array of selectable model ids (free ones first). If no key is given
+        # and a cloud key is already saved for this provider, reuse it.
+        PROV="${2:?provider required}"; KEY="${3:-}"
+        BASE=$(provider_base "$PROV")
+        if [ -z "$KEY" ] && cloud_active; then
+            SAVED_BASE=$(grep -oP 'LLM_API_BASE=\K\S+' "$CLOUD_CONF" 2>/dev/null)
+            [ "$SAVED_BASE" = "$BASE" ] && KEY=$(grep -oP 'LLM_API_KEY=\K\S+' "$CLOUD_CONF" 2>/dev/null)
+        fi
+        [ -z "$KEY" ] && { echo "[]"; exit 0; }
+        curl -s --max-time 12 "$BASE/models" -H "Authorization: Bearer $KEY" \
+            | python3 -c '
+import sys, json
+try:
+    ids = [m.get("id","") for m in json.load(sys.stdin).get("data",[]) if m.get("id")]
+except Exception:
+    ids = []
+free = [i for i in ids if i.endswith(":free")]
+paid = [i for i in ids if not i.endswith(":free")]
+# free first, then the rest; cap so the dropdown stays usable
+print(json.dumps((free + paid)[:60]))' 2>/dev/null || echo "[]"
+        ;;
     test-cloud)
         # test-cloud <provider|baseurl> <apikey> [model]
         PROV="${2:?provider required}"; KEY="${3:?api key required}"; MODEL="${4:-auto}"
