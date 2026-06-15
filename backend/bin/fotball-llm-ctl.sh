@@ -37,29 +37,40 @@ provider_keyurl() {
 
 cloud_active() { [ -f "$CLOUD_CONF" ]; }
 
-# Open a URL in the user's browser, robustly. On KDE, xdg-open delegates to
-# kde-open/kioclient which can fail silently, so we launch the real browser
-# binary directly (default browser via .desktop Exec → known binary → opener).
+# Open a URL in the user's browser, robustly. Two problems are solved here:
+#  1. On KDE, xdg-open delegates to kde-open/kioclient which can fail silently,
+#     so we launch the real browser binary directly (default-browser .desktop
+#     Exec → known binary → opener as last resort).
+#  2. When called from the Plasma "executable" engine (tray menu / config dialog),
+#     a plain `setsid … &` child can get reaped when the engine disconnects the
+#     source. So we FULLY detach via `systemd-run --user` (a transient unit that
+#     plasmashell cannot kill); `setsid` is only the fallback.
 browser_open() {
-    local URL="$1" DESK EXECLINE dir o b
+    local URL="$1" DESK EXECLINE dir b cmd=""
+    : >>"$HOME/.cache/fotballtray/open.log" 2>/dev/null
     DESK=$(xdg-settings get default-web-browser 2>/dev/null || true)
     if [ -n "$DESK" ]; then
         for dir in "$HOME/.local/share/applications" /usr/local/share/applications /usr/share/applications; do
             [ -f "$dir/$DESK" ] || continue
             EXECLINE=$(grep -m1 '^Exec=' "$dir/$DESK" | sed 's/^Exec=//; s/ *%[uUfFick]//g')
-            [ -n "$EXECLINE" ] && { setsid sh -c "$EXECLINE \"$URL\"" >/dev/null 2>&1 & return 0; }
+            [ -n "$EXECLINE" ] && { cmd="$EXECLINE"; break; }
         done
     fi
-    for b in firefox chromium chromium-browser google-chrome brave-browser microsoft-edge; do
-        command -v "$b" >/dev/null 2>&1 && { setsid "$b" "$URL" >/dev/null 2>&1 & return 0; }
-    done
-    for o in xdg-open gio kde-open6; do
-        command -v "$o" >/dev/null 2>&1 || continue
-        if [ "$o" = gio ]; then setsid gio open "$URL" >/dev/null 2>&1 &
-        else setsid "$o" "$URL" >/dev/null 2>&1 & fi
-        return 0
-    done
-    return 1
+    if [ -z "$cmd" ]; then
+        for b in firefox chromium chromium-browser google-chrome brave-browser microsoft-edge; do
+            command -v "$b" >/dev/null 2>&1 && { cmd="$b"; break; }
+        done
+    fi
+    [ -z "$cmd" ] && command -v xdg-open >/dev/null 2>&1 && cmd="xdg-open"
+    [ -z "$cmd" ] && return 1
+    echo "$(date '+%F %T') open via: $cmd  $URL" >>"$HOME/.cache/fotballtray/open.log" 2>/dev/null
+    # `sh -c '<cmd> "$0"' "$URL"` keeps multi-word cmds (e.g. "env … firefox") and
+    # the URL intact. systemd-run detaches it from the caller entirely.
+    if command -v systemd-run >/dev/null 2>&1; then
+        systemd-run --user --quiet --collect sh -c "$cmd \"\$0\"" "$URL" 2>>"$HOME/.cache/fotballtray/open.log" && return 0
+    fi
+    setsid sh -c "$cmd \"\$0\"" "$URL" >/dev/null 2>&1 &
+    return 0
 }
 
 # Commentator style/language profiles (the "plugin" system).

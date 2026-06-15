@@ -289,7 +289,7 @@ KCM.SimpleKCM {
         }
 
         // Hidden control backing cfg_onboardingDone (the welcome-tour flag).
-        PlasmaComponents3.CheckBox { id: onboardingDoneCheck; visible: false }
+        PlasmaComponents3.Switch { id: onboardingDoneCheck; visible: false }
 
         // Replay the first-run welcome tour.
         RowLayout {
@@ -383,13 +383,13 @@ KCM.SimpleKCM {
             }
         }
 
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: outlineCheck
             Kirigami.FormData.label: "Outline around result/time:"
             text: "Thin outline around result and time (better contrast on the panel)"
         }
 
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: liveShadowCheck
             Kirigami.FormData.label: "Shadow behind result/time:"
             text: "Soft drop shadow behind the result and time (adds depth)"
@@ -432,13 +432,13 @@ KCM.SimpleKCM {
             }
         }
 
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: teamOutlineCheck
             Kirigami.FormData.label: "Outline around team name:"
             text: "Thin outline around the team name (better contrast on the panel)"
         }
 
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: teamShadowCheck
             Kirigami.FormData.label: "Shadow behind team name:"
             text: "Soft drop shadow behind the team name (adds depth)"
@@ -629,7 +629,7 @@ KCM.SimpleKCM {
             level: 3
         }
 
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: soundsCheck
             text: "Play a sound on goals"
         }
@@ -682,7 +682,7 @@ KCM.SimpleKCM {
         }
 
         // ── Sound for serious events ───────────────────────────────────────
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: eventSoundsCheck
             text: "Play a sound on serious events (red card)"
         }
@@ -955,7 +955,7 @@ KCM.SimpleKCM {
 
         // Enable toggle — saved on "Apply" (the plasmoid then enables/disables
         // the systemd service to match).
-        PlasmaComponents3.CheckBox {
+        PlasmaComponents3.Switch {
             id: commentatorEnabledCheck
             Kirigami.FormData.label: "Live commentary:"
             text: "Enabled — comment on goals and red cards"
