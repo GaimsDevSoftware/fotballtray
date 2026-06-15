@@ -861,6 +861,14 @@ KCM.SimpleKCM {
                 textRole: "text"; valueRole: "value"
                 Component.onCompleted: currentIndex = Math.max(0, indexOfValue(cfg_commentaryMode))
             }
+            // Always-visible voice test — works for local AND cloud backends.
+            PlasmaComponents3.Button {
+                text: "Test voice"
+                icon.name: "audio-volume-high"
+                enabled: root.llmBusy === ""
+                onClicked: root.llmAction("test-voice " + JSON.stringify(deviceCombo.currentValue || ""),
+                                          "Speaking a test line…")
+            }
         }
 
         // Model — also saved on "Apply". Pick an installed one or type a new
