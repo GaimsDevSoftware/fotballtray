@@ -149,26 +149,53 @@ PY
         ;;
     list-models)
         # list-models <provider|baseurl> [apikey]
-        # JSON array of selectable model ids (free ones first). If no key is given
-        # and a cloud key is already saved for this provider, reuse it.
+        # A CURATED short-list (≤5) of FREE models well suited to writing short,
+        # dramatic commentary lines — each with a one-line pro/con. "Auto" first.
+        # If no key is given and a cloud key is already saved, reuse it.
         PROV="${2:?provider required}"; KEY="${3:-}"
         BASE=$(provider_base "$PROV")
         if [ -z "$KEY" ] && cloud_active; then
             SAVED_BASE=$(grep -oP 'LLM_API_BASE=\K\S+' "$CLOUD_CONF" 2>/dev/null)
             [ "$SAVED_BASE" = "$BASE" ] && KEY=$(grep -oP 'LLM_API_KEY=\K\S+' "$CLOUD_CONF" 2>/dev/null)
         fi
-        [ -z "$KEY" ] && { echo "[]"; exit 0; }
+        AUTO='{"id":"auto","label":"Auto — recommended","pros":"Always picks a working free model for you.","cons":"You don’t choose which one."}'
+        if [ -z "$KEY" ]; then echo "[$AUTO]"; exit 0; fi
         curl -s --max-time 12 "$BASE/models" -H "Authorization: Bearer $KEY" \
-            | python3 -c '
-import sys, json
+            | AUTO="$AUTO" python3 -c '
+import sys, json, os
 try:
     ids = [m.get("id","") for m in json.load(sys.stdin).get("data",[]) if m.get("id")]
 except Exception:
     ids = []
 free = [i for i in ids if i.endswith(":free")]
-paid = [i for i in ids if not i.endswith(":free")]
-# free first, then the rest; cap so the dropdown stays usable
-print(json.dumps((free + paid)[:60]))' 2>/dev/null || echo "[]"
+pool = free if free else ids        # OpenRouter→:free; Groq/Gemini→all (free tier)
+
+# Curated catalog (family keyword → label, why good, the trade-off). Order = priority.
+catalog = [
+  ("llama-3.3-70b", "Llama 3.3 70B",
+     "Best all-rounder: natural, dramatic, follows the brief and the word limit.",
+     "A little slower than the small models."),
+  ("deepseek",      "DeepSeek V3",
+     "Most vivid and theatrical — superb at goal “screamers”.",
+     "Can run long or get carried away with flourish."),
+  ("qwen",          "Qwen 72B",
+     "Crisp and obedient — sticks tightly to one or two sentences.",
+     "A touch less poetic than the others."),
+  ("gemini-2",      "Gemini Flash",
+     "Very fast — the lowest latency for live moments.",
+     "Can play it safe and sound a bit flat."),
+  ("mistral",       "Mistral",
+     "Light and quick, fine for short lines on modest hardware.",
+     "Least dramatic flair of the bunch."),
+]
+out = [json.loads(os.environ["AUTO"])]
+seen = set()
+for key, label, pros, cons in catalog:
+    m = next((i for i in pool if key in i.lower() and i not in seen), None)
+    if m:
+        out.append({"id": m, "label": label, "pros": pros, "cons": cons}); seen.add(m)
+    if len(out) >= 5: break          # auto + up to 4 curated
+print(json.dumps(out))' 2>/dev/null || echo "[$AUTO]"
         ;;
     test-cloud)
         # test-cloud <provider|baseurl> <apikey> [model]

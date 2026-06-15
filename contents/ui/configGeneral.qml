@@ -59,8 +59,10 @@ KCM.SimpleKCM {
     // Commentator style profiles (plugin system).
     property var    llmStyles: []
     property string llmStyle:  "british"
-    // Selectable cloud models for the current provider ("auto" + fetched ids).
-    property var    cloudModelList: ["auto"]
+    // Curated selectable cloud models for the current provider (objects with
+    // {id, label, pros, cons}). "Auto" is always first.
+    property var    cloudModelList: [{ id: "auto", label: "Auto — recommended",
+        pros: "Always picks a working free model for you.", cons: "You don’t choose which one." }]
 
     Plasma5Support.DataSource {
         id: llmExec
@@ -123,9 +125,11 @@ KCM.SimpleKCM {
         var key  = cloudKeyField.text || "";
         llmExec.exec(llmHelper + " list-models " + JSON.stringify(prov) + " " + JSON.stringify(key),
             function(out) {
-                var ids = [];
-                try { ids = JSON.parse(out) || []; } catch (e) { ids = []; }
-                root.cloudModelList = ["auto"].concat(ids);
+                var list = [];
+                try { list = JSON.parse(out) || []; } catch (e) { list = []; }
+                if (!list.length) list = [{ id: "auto", label: "Auto — recommended",
+                    pros: "Always picks a working free model for you.", cons: "Paste a key to load the list." }];
+                root.cloudModelList = list;
             });
     }
 
@@ -875,10 +879,17 @@ KCM.SimpleKCM {
                 }
                 PlasmaComponents3.ComboBox {
                     id: cloudModelField
-                    editable: true
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 15
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 13
                     model: root.cloudModelList
-                    Component.onCompleted: editText = (root.llmCloudModel || "auto")
+                    textRole: "label"; valueRole: "id"
+                    // Re-select the saved model whenever the list changes.
+                    function syncIndex() {
+                        var want = root.llmCloudModel || "auto";
+                        var i = indexOfValue(want);
+                        currentIndex = i >= 0 ? i : 0;
+                    }
+                    onModelChanged: syncIndex()
+                    Component.onCompleted: syncIndex()
                 }
                 PlasmaComponents3.Button {
                     icon.name: "view-refresh"
@@ -886,6 +897,24 @@ KCM.SimpleKCM {
                     PlasmaComponents3.ToolTip.text: "Load this provider's models"
                     PlasmaComponents3.ToolTip.visible: hovered
                     onClicked: root.loadCloudModels()
+                }
+            }
+
+            // Pros / cons of the currently selected model.
+            PlasmaComponents3.Label {
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                visible: cloudModelField.currentIndex >= 0 && root.cloudModelList.length > 0
+                wrapMode: Text.WordWrap
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                textFormat: Text.StyledText
+                text: {
+                    var m = root.cloudModelList[cloudModelField.currentIndex] || {};
+                    if (!m.pros && !m.cons) return "";
+                    var g = Kirigami.Theme.positiveTextColor, r = Kirigami.Theme.neutralTextColor;
+                    return "<b>" + (m.label || "") + "</b><br>"
+                         + "<font color='" + g + "'>+ " + (m.pros || "") + "</font><br>"
+                         + "<font color='" + r + "'>– " + (m.cons || "") + "</font>";
                 }
             }
 
@@ -912,7 +941,7 @@ KCM.SimpleKCM {
                     icon.name: "cloud-upload"
                     enabled: root.llmBusy === "" && cloudKeyField.text.length > 0
                     onClicked: root.llmApplyCloud(cloudProviderCombo.currentValue,
-                                                  cloudKeyField.text, cloudModelField.editText)
+                                                  cloudKeyField.text, cloudModelField.currentValue)
                 }
                 PlasmaComponents3.Button {
                     text: "Back to local"
