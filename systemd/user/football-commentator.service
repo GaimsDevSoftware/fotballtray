@@ -1,0 +1,17 @@
+[Unit]
+Description=Football Live — Ollama live English commentary generator
+After=network-online.target fotball-fetcher.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/football-commentator.py
+Restart=always
+RestartSec=5
+# Any installed Ollama model. To use a smaller/faster one:
+#   ollama pull llama3.2:3b  →  set Environment=OLLAMA_MODEL=llama3.2:3b
+Environment=OLLAMA_MODEL=gemma4:12b
+# Environment=OLLAMA_URL=http://localhost:11434
+
+[Install]
+WantedBy=default.target

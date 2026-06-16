@@ -1,0 +1,2 @@
+[Service]
+Environment=OLLAMA_MODEL=gemma4:12b

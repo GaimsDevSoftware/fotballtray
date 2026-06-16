@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.backup
+*.tmp
+*.swp
+*~
+systemd/user/football-commentator.service.d/cloud.conf
+systemd/user/football-commentator.service.d/model.conf

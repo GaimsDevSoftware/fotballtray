@@ -1,0 +1,13 @@
+[Unit]
+Description=Fotball Live HTTP Server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/Dokumenter/Kode-prosjekter/footballtray/bin/httpserver.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

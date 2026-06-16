@@ -1,0 +1,23 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "FotballTray"
+            }
+        ],
+        "Category": "Utilities",
+        "Description": "Live football scores in the system tray — with AI voice commentary, stats, line-ups and player ratings",
+        "Icon": "futbol",
+        "Id": "org.kde.fotballtray",
+        "License": "MIT",
+        "Name": "FootballTray",
+        "ServiceTypes": [
+            "Plasma/Applet"
+        ],
+        "Version": "1.1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-NotificationAreaCategory": "ApplicationStatus",
+    "X-Plasma-NotificationArea": "true",
+    "KPackageStructure": "Plasma/Applet"
+}

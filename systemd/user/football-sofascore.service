@@ -1,0 +1,15 @@
+[Unit]
+Description=Football Live — Sofascore live incident poller
+After=network-online.target fotball-fetcher.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/football-sofascore.py
+Restart=always
+RestartSec=10
+# Give Sofascore a moment before polling starts
+ExecStartPre=/bin/sleep 5
+
+[Install]
+WantedBy=default.target
