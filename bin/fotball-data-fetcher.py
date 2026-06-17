@@ -1766,6 +1766,14 @@ def _load_accumulated_top_stats(active):
             if key[0]:
                 acc_assists[key] = a
         seen = set(existing.get("_seenEvents") or [])
+        # Sanity check: discard obviously corrupted accumulator data
+        # (e.g. from the pre-dedup bug that ran for hours inflating counts).
+        max_goals = max((s.get("goals", 0) for s in acc_scorers.values()), default=0)
+        max_assists = max((a.get("assists", 0) for a in acc_assists.values()), default=0)
+        if max_goals > 20 or max_assists > 20:
+            log("  Discarding corrupted top-stats cache (max goals=%d, max assists=%d)",
+                max_goals, max_assists)
+            return {}, {}, set()
         return acc_scorers, acc_assists, seen
     except Exception:
         return {}, {}, set()
