@@ -6,7 +6,7 @@
             }
         ],
         "Category": "Utilities",
-        "Description": "Live football scores in the system tray — with AI voice commentary, stats, line-ups and player ratings",
+        "Description": "Live football scores in the system tray \u2014 with AI voice commentary, stats, line-ups and player ratings",
         "Icon": "futbol",
         "Id": "org.kde.fotballtray",
         "License": "MIT",
@@ -14,7 +14,7 @@
         "ServiceTypes": [
             "Plasma/Applet"
         ],
-        "Version": "1.1.0"
+        "Version": "1.1.1"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
     "X-Plasma-NotificationAreaCategory": "ApplicationStatus",
