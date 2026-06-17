@@ -1804,7 +1804,7 @@ def compute_top_stats(matches, tournament_id, acc_scorers=None, acc_assists=None
                 continue
             lower = text.lower()
             if "goal" in lower and "own goal" not in lower:
-                scorer_match = _re.search(r'Goal(?:\s*\([^)]+\))?\s*[–-]\s*([A-Za-zÀ-ÖØ-öø-ÿ\.]+(?:\s[A-Za-zÀ-ÖØ-öø-ÿ\.]+)*)', text)
+                scorer_match = _re.search(r"Goal(?:\s*\([^)]+\))?\s*[–-]\s*([A-Za-zÀ-ÖØ-öø-ÿ\.\-\x27]+(?:\s[A-Za-zÀ-ÖØ-öø-ÿ\.\-\x27]+)*)", text)
                 if scorer_match:
                     scorer = scorer_match.group(1).strip()
                     is_home = evt.get("isHome")
@@ -1823,7 +1823,7 @@ def compute_top_stats(matches, tournament_id, acc_scorers=None, acc_assists=None
                         scorers[key] = entry
                     entry["goals"] += 1
 
-                assist_match = _re.search(r'\(assist:\s*([A-Za-zÀ-ÖØ-öø-ÿ\.]+(?:\s[A-Za-zÀ-ÖØ-öø-ÿ\.]+)*)\)', text)
+                assist_match = _re.search(r"\(assist:\s*([A-Za-zÀ-ÖØ-öø-ÿ\.\-\x27]+(?:\s[A-Za-zÀ-ÖØ-öø-ÿ\.\-\x27]+)*)\)", text)
                 if assist_match:
                     assister = assist_match.group(1).strip()
                     is_home = evt.get("isHome")
@@ -1979,12 +1979,73 @@ def merge_ai_commentary(matches):
             m["aiCommentaryId"] = entry.get("ts") or entry.get("clock") or entry["text"]
 
 
+MATCH_ARCHIVE_FILE = CACHE_DIR / "match_archive.json"
+
+
 def write_cache(matches):
-    """Write matches to cache file"""
+    """Write matches to cache file, merging with a persistent archive so
+    historical results survive across cycles even when ESPN stops returning
+    older matches."""
     merge_ai_commentary(matches)
+
+    # Load existing archive (dict keyed by match id)
+    archive = {}
+    if MATCH_ARCHIVE_FILE.exists():
+        try:
+            archive = json.loads(MATCH_ARCHIVE_FILE.read_text())
+        except Exception:
+            pass
+
+    # Merge current matches in: add new, update existing live matches
+    now = datetime.now(timezone.utc)
+    cutoff = now.timestamp() - 30 * 86400  # 30-day purge
+    for m in matches:
+        mid = m.get("id", "")
+        if not mid:
+            continue
+        if m.get("status") in ("in", "ht", "pre"):
+            archive[mid] = m  # live/upcoming: always overwrite
+        elif m.get("status") in ("post", "ft"):
+            if mid not in archive:
+                archive[mid] = m  # new finished match: add it
+            else:
+                # Existing finished match: only update if this cycle has richer data
+                existing = archive[mid]
+                if not existing.get("lineups") and m.get("lineups"):
+                    archive[mid] = m
+                elif not existing.get("stats") and m.get("stats"):
+                    archive[mid] = m
+
+    # Purge matches older than 30 days
+    stale = []
+    for mid, m in archive.items():
+        try:
+            t = datetime.fromisoformat(str(m.get("matchTime", "")).replace("Z", "+00:00"))
+            if t.timestamp() < cutoff and m.get("status") in ("post", "ft"):
+                stale.append(mid)
+        except Exception:
+            pass
+    for mid in stale:
+        del archive[mid]
+
+    # Write archive
+    tmp_a = MATCH_ARCHIVE_FILE.with_suffix(".tmp")
+    tmp_a.write_text(json.dumps(archive, ensure_ascii=False, indent=2))
+    tmp_a.rename(MATCH_ARCHIVE_FILE)
+
+    # Build ordered match list from archive
+    all_matches = list(archive.values())
+    def by_time(m):
+        return m.get("matchTime", "") or ""
+    live = sorted([m for m in all_matches if m["status"] in ("in", "ht")], key=by_time)
+    upcoming = sorted([m for m in all_matches if m["status"] == "pre"], key=by_time)
+    finished = sorted([m for m in all_matches if m["status"] not in ("in", "ht", "pre")],
+                      key=by_time, reverse=True)
+    all_ordered = live + upcoming + finished
+
     data = {
         "updated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "matches": matches,
+        "matches": all_ordered,
     }
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     tmp_file = MATCHES_FILE.with_suffix(".tmp")
@@ -2037,7 +2098,10 @@ def run_once(leagues):
         write_cache(matches)
         write_teams_cache(matches)
         write_leagues_cache(league_info)
-        write_tournament_cache(matches)
+        # Use the full archive (all matches ever seen) for tournament stats
+        # so top scorers/assists span the entire tournament, not just today.
+        archived = list((json.loads(MATCH_ARCHIVE_FILE.read_text()) if MATCH_ARCHIVE_FILE.exists() else {}).values())
+        write_tournament_cache(archived if archived else matches)
         save_details_cache(_details_cache)
         live = sum(1 for m in matches if m["status"] == "in")
         upcoming = sum(1 for m in matches if m["status"] == "pre")
